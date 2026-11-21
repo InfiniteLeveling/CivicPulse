@@ -30,8 +30,8 @@ test("admin navigation defines structured navigation groups with correct propert
   const analyticsItem = opsGroup.items.find((i) => i.href === "/admin/analytics");
   assert.ok(analyticsItem);
   assert.equal(analyticsItem.label, "City Analytics");
-  assert.equal(analyticsItem.available, false);
-  assert.equal(analyticsItem.phaseBadge, "Phase 20");
+  assert.equal(analyticsItem.available, true);
+  assert.equal(analyticsItem.phaseBadge, undefined);
 
   const portalsGroup = ADMIN_NAV_GROUPS.find((g) => g.group === "PORTALS");
   assert.ok(portalsGroup);

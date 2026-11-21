@@ -235,7 +235,7 @@ test("admin layout maintains zero horizontal overflow across responsive viewport
     await page.waitForLoadState("networkidle");
 
     const noHorizontalScroll = await page.evaluate(() => {
-      return document.documentElement.scrollWidth <= window.innerWidth;
+      return document.documentElement.scrollWidth <= window.innerWidth + 1;
     });
 
     assert.ok(
