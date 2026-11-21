@@ -2,6 +2,7 @@
 
 import { useEffect, useRef } from "react";
 import Image from "next/image";
+import Link from "next/link";
 import {
   X,
   MapPin,
@@ -223,10 +224,17 @@ export function AdminComplaintPreviewDialog({
         </div>
 
         {/* Footer */}
-        <div className="flex justify-end pt-2">
+        <div className="flex items-center justify-end gap-2 pt-2">
           <Button type="button" variant="outline" onClick={onClose} size="sm" className="text-xs">
             Close Inspection
           </Button>
+          <Link
+            href={`/admin/complaints/${report.id}`}
+            className="inline-flex items-center justify-center gap-1.5 rounded-lg bg-primary px-3 py-1.5 text-xs font-semibold text-primary-foreground hover:bg-primary/90 transition-colors shadow-xs"
+          >
+            <span>Open Triage Workspace</span>
+            <ExternalLink className="size-3.5" aria-hidden="true" />
+          </Link>
         </div>
       </div>
     </div>

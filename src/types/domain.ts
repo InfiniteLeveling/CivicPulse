@@ -268,4 +268,31 @@ export interface GetAdminReportsResult {
   isDemoData: boolean;
 }
 
+export interface UpdateTriagePayload {
+  version: number;
+  departmentId?: string | null;
+  severity?: IssueSeverity;
+  category?: IssueCategory;
+  visibility?: ReportVisibility;
+  remark?: string;
+}
+
+export interface UpdateTriageResponse {
+  report: ComplaintSummary;
+  version: number;
+}
+
+export interface UpdateStatusPayload {
+  version: number;
+  status: ReportStatus;
+  remark?: string;
+  resolutionImageId?: string | null;
+}
+
+export interface UpdateStatusResponse {
+  report: ComplaintSummary;
+  version: number;
+}
+
+
 
