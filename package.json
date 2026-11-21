@@ -11,9 +11,11 @@
     "start": "next start",
     "lint": "eslint . --max-warnings=0",
     "typecheck": "next typegen && tsc --noEmit",
-    "test": "node --experimental-strip-types --import ./tests/register.mjs tests/phase04_auth.test.ts && node --experimental-strip-types --import ./tests/register.mjs tests/phase05_storage.test.ts"
+    "check:env": "node --experimental-strip-types --import ./tests/register.mjs scripts/deployment/check-env.ts",
+    "test": "node --experimental-strip-types --import ./tests/register.mjs tests/phase04_auth.test.ts && node --experimental-strip-types --import ./tests/register.mjs tests/phase05_storage.test.ts && node --experimental-strip-types --import ./tests/register.mjs tests/phase06_report.test.ts && node --experimental-strip-types --import ./tests/register.mjs tests/phase07_retrieval.test.ts && node --experimental-strip-types --import ./tests/register.mjs tests/phase08_status.test.ts && node --experimental-strip-types --import ./tests/register.mjs tests/phase09_assignment.test.ts && node --experimental-strip-types --import ./tests/register.mjs tests/phase10_e2e_workflow.test.ts && node --experimental-strip-types --import ./tests/register.mjs tests/phase11_ai.test.ts && node --experimental-strip-types --import ./tests/register.mjs tests/phase12_duplicate.test.ts && node --experimental-strip-types --import ./tests/register.mjs tests/phase13_support.test.ts && node --experimental-strip-types --import ./tests/register.mjs tests/phase14_priority.test.ts && node --experimental-strip-types --import ./tests/register.mjs tests/phase15_routing.test.ts && node --experimental-strip-types --import ./tests/register.mjs tests/phase16_map.test.ts && node --experimental-strip-types --import ./tests/register.mjs tests/phase17_realtime_evidence.test.ts && node --experimental-strip-types --import ./tests/register.mjs tests/phase18_analytics.test.ts && node --experimental-strip-types --import ./tests/register.mjs tests/phase19_security.test.ts && node --experimental-strip-types --import ./tests/register.mjs tests/deployment/deployment-config.test.ts"
   },
   "dependencies": {
+    "@google/genai": "^3.6.1",
     "@supabase/ssr": "0.12.7",
     "@supabase/supabase-js": "^2",
     "next": "^16",

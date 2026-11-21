@@ -67,10 +67,12 @@ sequenceDiagram
 - Returning an authorized storage reference to the frontend.
 - Zero fake rows inserted into `public.report_images`.
 
-### Phase 06 (Complaint Creation)
-- Receives `storage_path` in report submission payload.
-- Calls `verifyOwnedDraftPath(user.id, storage_path)` to ensure the draft belongs to the reporter.
-- Links the image to the new report in `public.report_images` within a single atomic database transaction.
+### Phase 06 (Complaint Creation - Implemented)
+- Receives `storage_path` in `POST /api/reports` complaint submission payload.
+- Verifies storage ownership via `verifyOwnedDraftPath(user.id, storage_path)` to ensure the draft belongs to the reporter.
+- Verifies uniqueness: prevents linking an already-associated image to another report (`409 CONFLICT`).
+- Links the image to the new report in `public.report_images` (`type = 'before'`) within an atomic database transaction.
+- Updates Storage RLS `citizen_delete_draft`: blocks citizens from deleting any storage object once it is linked in `public.report_images`.
 
 ### Phase 11 (Gemini Analysis)
 - The backend retrieves the raw image bytes server-side using the verified `storage_path`.

@@ -3,6 +3,8 @@ import { AppError } from "@/utils/app-error";
 
 const UUID_REGEX = /^[0-9a-f]{8}-[0-9a-f]{4}-[1-5][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i;
 const DRAFT_PATH_REGEX = /^drafts\/([0-9a-fA-F-]{36})\/([0-9a-fA-F-]{36})\.(jpg|jpeg|png|webp)$/;
+const RESOLUTION_DRAFT_PATH_REGEX =
+  /^resolution-drafts\/([0-9a-fA-F-]{36})\/([0-9a-fA-F-]{36})\/([0-9a-fA-F-]{36})\.(jpg|jpeg|png|webp)$/;
 
 /**
  * Generates a user-scoped, collision-resistant draft storage path.
@@ -18,11 +20,85 @@ export function generateDraftStoragePath(userId: string, extension: SupportedExt
   return `drafts/${userId}/${imageId}.${normalizedExt}`;
 }
 
+/**
+ * Generates a report-scoped, admin-authorized resolution draft storage path.
+ * Format: resolution-drafts/<admin_id>/<report_id>/<random_uuid>.<extension>
+ */
+export function generateResolutionDraftStoragePath(
+  adminId: string,
+  reportId: string,
+  extension: SupportedExtension
+): string {
+  if (!UUID_REGEX.test(adminId)) {
+    throw new AppError("VALIDATION_ERROR", "Invalid admin identifier for resolution storage path");
+  }
+  if (!UUID_REGEX.test(reportId)) {
+    throw new AppError("VALIDATION_ERROR", "Invalid report identifier for resolution storage path");
+  }
+
+  const imageId = crypto.randomUUID();
+  const normalizedExt = extension.replace(/^\./, "").toLowerCase();
+  return `resolution-drafts/${adminId}/${reportId}/${imageId}.${normalizedExt}`;
+}
+
 export interface ParsedDraftPath {
   isValid: boolean;
   userId?: string;
   imageId?: string;
   extension?: string;
+}
+
+export interface ParsedResolutionDraftPath {
+  isValid: boolean;
+  adminId?: string;
+  reportId?: string;
+  imageId?: string;
+  extension?: string;
+}
+
+/**
+ * Validates and decomposes a resolution draft storage path.
+ * Enforces strict pattern matching and guards against directory traversal (.., //, leading/trailing slashes).
+ */
+export function parseResolutionDraftStoragePath(storagePath: string): ParsedResolutionDraftPath {
+  if (!storagePath || typeof storagePath !== "string") {
+    return { isValid: false };
+  }
+
+  if (
+    storagePath.includes("..") ||
+    storagePath.includes("//") ||
+    storagePath.startsWith("/") ||
+    storagePath.endsWith("/") ||
+    storagePath.includes("\\")
+  ) {
+    return { isValid: false };
+  }
+
+  const match = RESOLUTION_DRAFT_PATH_REGEX.exec(storagePath);
+  if (!match) {
+    return { isValid: false };
+  }
+
+  const [, adminId, reportId, imageId, extension] = match;
+  if (!UUID_REGEX.test(adminId) || !UUID_REGEX.test(reportId) || !UUID_REGEX.test(imageId)) {
+    return { isValid: false };
+  }
+
+  return {
+    isValid: true,
+    adminId,
+    reportId,
+    imageId,
+    extension: extension.toLowerCase(),
+  };
+}
+
+/**
+ * Checks whether a storage path is a resolution draft path.
+ */
+export function isResolutionDraftStoragePath(storagePath: string): boolean {
+  return parseResolutionDraftStoragePath(storagePath).isValid;
 }
 
 /**

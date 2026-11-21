@@ -183,3 +183,15 @@ export function CivicImagePicker() {
   );
 }
 ```
+
+---
+
+## 6. Administrator Resolution Evidence Upload (Phase 17)
+
+For official after-repair evidence, administrators use the dedicated endpoint:
+- **Endpoint**: `POST /api/admin/reports/:id/resolution-evidence`
+- **Authentication**: Administrator session required (`requireAdmin()`)
+- **Staging Path**: `resolution-drafts/<admin_id>/<report_id>/<uuid>.<ext>`
+- **Report State Precondition**: Report must be in `in_progress` status.
+- **Reference**: See [RESOLUTION_EVIDENCE_CONTRACT.md](RESOLUTION_EVIDENCE_CONTRACT.md) for complete details.
+

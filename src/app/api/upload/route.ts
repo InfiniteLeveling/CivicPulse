@@ -6,6 +6,7 @@ import { errorResponse, successResponse } from "@/utils/api-response";
 import { AppError } from "@/utils/app-error";
 import { logger } from "@/utils/logger";
 import { uploadPurposeSchema } from "@/validators/upload.schema";
+import { enforceRateLimit } from "@/utils/rate-limit";
 
 export const runtime = "nodejs";
 export const dynamic = "force-dynamic";
@@ -15,7 +16,10 @@ export async function POST(request: NextRequest) {
     // 1. Verify caller identity via SSR session cookies
     const user = await requireUser();
 
-    // 2. Parse multipart form data safely
+    // 2. Abuse Prevention: Rate limit citizen draft uploads (max 30 per minute)
+    enforceRateLimit(`upload:${user.id}`, 30, 60);
+
+    // 3. Parse multipart form data safely
     let formData: FormData;
     try {
       formData = await request.formData();

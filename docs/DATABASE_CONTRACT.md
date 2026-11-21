@@ -34,13 +34,17 @@ Use this vocabulary within the shared Next.js app. SQL identifiers are snake_cas
 
 ## Planned API coverage
 
-| Future operation | Storage dependency and boundary |
+| Operation | Storage dependency and boundary |
 |---|---|
-| POST /api/reports; GET /api/reports and /api/reports/:id | reports, scoped projections, departments, ordered status_history, vote totals and authorized images. Atomically create intake and initial history. |
+| POST /api/reports (Implemented · Phase 06) | Implemented via atomic PostgreSQL function `public.civicpulse_create_report` (migration `20261121000500_phase06_report_creation.sql`). Atomically inserts report, verifies draft path ownership, associates `report_images` (`type = 'before'`), and trigger `report_record_event` writes initial `status_history` and `report_votes`. |
+| GET /api/reports and /api/reports/:id (Planned · Phase 07) | reports, scoped projections, departments, ordered status_history, vote totals and authorized images. Planned for Phase 07 retrieval. |
 | POST /api/upload; POST /api/ai/classify | Private staging in Phase 05; optional later AI analysis of an authorized handle. Neither route exists yet. |
 | Duplicate preview | The numbered API spec calls this POST /api/reports/candidates; the Phase 02 brief calls it /api/reports/check-duplicates. Treat the latter as a proposed name pending joint review. Do not wire either path into production UI yet. Both designs use category/status/coordinate filtering. |
 | POST /api/reports/:id/upvote | Unique (report_id,user_id) behind the authenticated write. |
-| PATCH /api/reports/:id/status; POST /api/admin/assign | Admin-authorized transaction using expected report version, history and nullable department. |
+| PATCH /api/reports/:id/status (Implemented · Phase 08) | Admin-authorized transaction using atomic function `public.civicpulse_transition_report_status`, row-level lock `FOR UPDATE`, optimistic concurrency via `expected_status`, automatic version bumping, and trigger-backed `status_history` persistence. |
+| GET /api/reports/:id/history (Implemented · Phase 08) | Retrieves chronological status timeline. Anon and authenticated granted SELECT on safe fields; public RLS policy `timeline_public_read`; admin RPC `civicpulse_get_admin_status_history` projects notes and actor UUIDs. Index `status_history_report_chronological` optimizes traversal. |
+| GET /api/departments (Implemented · Phase 09) | Retrieves department directory. Anon and authenticated granted SELECT on safe fields (`id`, `name`, `description`); sorted deterministically by `name ASC`. |
+| POST /api/admin/assign (Implemented · Phase 09) | Admin-authorized transaction using atomic function `public.civicpulse_assign_department`, row-level lock `FOR UPDATE`, optimistic concurrency via `expected_department_id`, duplicate no-op protection, and dedicated `department_assignment_history` persistence. |
 | GET /api/admin/analytics | Authorized, bounded aggregates from reports and status_history. No analytics endpoint or view yet. |
 
 Use the shared ApiResponse envelope. Expect validation errors for bounds/enum violations, a conflict on stale revisions or changed retry payloads, 401 on expired identity, 403 for unauthorized operations and 404 for unavailable records. The API will translate database errors into safe codes; avoid displaying SQLSTATE, raw constraints or provider errors to users. None of these prospective operations is unlocked merely by applying the migration.

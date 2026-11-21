@@ -10,25 +10,25 @@ export async function resolve(specifier, context, defaultResolve) {
     return defaultResolve(pathToFileURL(stubPath).href, context);
   }
 
-  if (target.startsWith("next/")) {
+  if (target.startsWith("next/") && !target.endsWith(".js")) {
     return defaultResolve(`${target}.js`, context);
   }
 
   if (target.startsWith("@/")) {
     const subpath = target.slice(2);
     let fullPath = path.resolve(process.cwd(), "src", subpath);
-    if (!path.extname(fullPath) && fs.existsSync(fullPath + ".ts")) {
+    if (!fs.existsSync(fullPath) && fs.existsSync(fullPath + ".ts")) {
       fullPath += ".ts";
     }
     return defaultResolve(pathToFileURL(fullPath).href, context);
   }
 
-  if ((target.startsWith("./") || target.startsWith("../")) && !path.extname(target)) {
+  if (target.startsWith("./") || target.startsWith("../")) {
     if (context.parentURL) {
       const parentPath = fileURLToPath(context.parentURL);
       const parentDir = path.dirname(parentPath);
       const resolved = path.resolve(parentDir, target);
-      if (fs.existsSync(resolved + ".ts")) {
+      if (!fs.existsSync(resolved) && fs.existsSync(resolved + ".ts")) {
         return defaultResolve(pathToFileURL(resolved + ".ts").href, context);
       }
     }
