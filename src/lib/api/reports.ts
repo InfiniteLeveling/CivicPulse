@@ -9,12 +9,15 @@ import type {
   GetMyReportsResult,
   GetPublicReportsParams,
   GetPublicReportsResult,
+  GetAdminReportsParams,
+  GetAdminReportsResult,
   PaginatedListResponse,
   ReportSummary,
   SupportReportResponse,
 } from "@/types/domain";
 import { createReportSchema } from "../validation/report";
 import { filterPublicReports } from "../validation/public-reports";
+import { filterAdminReports, isReportUrgent } from "../validation/admin-reports";
 import {
   filterReports,
   getMockReportDetails,
@@ -317,4 +320,100 @@ export async function getPublicReports(
     };
   }
 }
+
+/**
+ * Retrieves authorized municipal complaint queue with search, filtering, and priority sorting.
+ * Calls GET /api/reports?scope=admin with query parameters.
+ * Falls back transparently in development/demo mode to mock fixture data when live API routes are unprovisioned.
+ */
+export async function getAdminReports(
+  params?: GetAdminReportsParams,
+  options: { signal?: AbortSignal } = {}
+): Promise<GetAdminReportsResult> {
+  if (params?.forceError) {
+    throw new ApiError(500, "INTERNAL_ERROR", "Simulated API error for testing error state handling.");
+  }
+
+  if (params?.empty) {
+    return {
+      items: [],
+      total: 0,
+      page: 1,
+      pageSize: params?.pageSize ?? 10,
+      totalPages: 1,
+      urgentCount: 0,
+      isDemoData: true,
+    };
+  }
+
+  const query = new URLSearchParams();
+  query.set("scope", "admin");
+
+  if (params?.status && params.status !== "all") {
+    query.set("status", params.status);
+  }
+  if (params?.category && params.category !== "all") {
+    query.set("category", params.category);
+  }
+  if (params?.severity && params.severity !== "all") {
+    query.set("severity", params.severity);
+  }
+  if (params?.urgent) {
+    query.set("urgent", "true");
+  }
+  if (params?.q && params.q.trim()) {
+    query.set("q", params.q.trim());
+  }
+  if (params?.sort) {
+    query.set("sort", params.sort);
+  }
+  if (params?.page) {
+    query.set("page", String(params.page));
+  }
+  if (params?.pageSize) {
+    query.set("pageSize", String(params.pageSize));
+  }
+
+  try {
+    const response = await apiRequest<PaginatedListResponse<ComplaintSummary>>(
+      endpoints.listReports,
+      {
+        query,
+        signal: options.signal,
+      }
+    );
+
+    if (!response || !Array.isArray(response.items)) {
+      throw new Error("Invalid admin report list envelope received from server.");
+    }
+
+    const pageSize = params?.pageSize ?? 10;
+    const total = response.total ?? response.items.length;
+    const totalPages = Math.max(1, Math.ceil(total / pageSize));
+
+    return {
+      items: response.items,
+      total,
+      page: response.page ?? 1,
+      pageSize: response.pageSize ?? pageSize,
+      totalPages,
+      urgentCount: response.items.filter(
+        (r) => isReportUrgent(r) && r.status !== "resolved"
+      ).length,
+      isDemoData: false,
+    };
+  } catch (cause) {
+    if (options.signal?.aborted) {
+      throw cause;
+    }
+
+    // In development / demo environment without backend route handlers, gracefully fall back to fixture data.
+    const mockResult = filterAdminReports(mockMyReports, params);
+    return {
+      ...mockResult,
+      isDemoData: true,
+    };
+  }
+}
+
 

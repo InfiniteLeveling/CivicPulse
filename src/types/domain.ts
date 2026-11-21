@@ -245,4 +245,27 @@ export interface AdminUserSummary {
   role: "admin";
 }
 
+export interface GetAdminReportsParams {
+  status?: ReportStatus | "all";
+  category?: IssueCategory | "all";
+  severity?: IssueSeverity | "all";
+  urgent?: boolean;
+  q?: string;
+  sort?: "priority" | "priority_asc" | "recent" | "oldest" | "most_supported";
+  page?: number;
+  pageSize?: number;
+  empty?: boolean;
+  forceError?: boolean;
+}
+
+export interface GetAdminReportsResult {
+  items: ComplaintSummary[];
+  total: number;
+  page: number;
+  pageSize: number;
+  totalPages: number;
+  urgentCount: number;
+  isDemoData: boolean;
+}
+
 

@@ -22,8 +22,8 @@ test("admin navigation defines structured navigation groups with correct propert
   const complaintsItem = mainGroup.items.find((i) => i.href === "/admin/complaints");
   assert.ok(complaintsItem);
   assert.equal(complaintsItem.label, "Complaints Queue");
-  assert.equal(complaintsItem.available, false);
-  assert.equal(complaintsItem.phaseBadge, "Phase 18");
+  assert.equal(complaintsItem.available, true);
+  assert.equal(complaintsItem.phaseBadge, undefined);
 
   const opsGroup = ADMIN_NAV_GROUPS.find((g) => g.group === "OPERATIONS");
   assert.ok(opsGroup);

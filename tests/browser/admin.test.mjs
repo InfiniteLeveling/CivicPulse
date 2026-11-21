@@ -183,10 +183,10 @@ test("quick actions section provides valid navigation and marks future phases co
   await publicLink.waitFor({ state: "visible" });
   assert.equal(await publicLink.getAttribute("href"), "/");
 
-  // Phase 18 Complaints Queue button is disabled
-  const complaintsBtn = actionsSection.getByRole("button", { name: /Complaints Queue/i });
-  await complaintsBtn.waitFor({ state: "visible" });
-  assert.equal(await complaintsBtn.getAttribute("disabled"), "");
+  // Phase 18 Complaints Queue is now an active link
+  const complaintsLink = actionsSection.getByRole("link", { name: /Complaints Queue/i });
+  await complaintsLink.waitFor({ state: "visible" });
+  assert.equal(await complaintsLink.getAttribute("href"), "/admin/complaints");
 });
 
 test("data freshness indicator and manual refresh button function smoothly", async () => {

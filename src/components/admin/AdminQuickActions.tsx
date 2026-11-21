@@ -7,7 +7,6 @@ import {
   Layers,
 } from "lucide-react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 
 export function AdminQuickActions() {
@@ -74,31 +73,21 @@ export function AdminQuickActions() {
             </Button>
           </Link>
 
-          {/* Action 4: Complaints Queue (Phase 18 Coming Soon) */}
-          <div className="relative">
+          {/* Action 4: Complaints Queue */}
+          <Link href="/admin/complaints" className="block">
             <Button
               variant="outline"
-              disabled
-              aria-disabled="true"
-              className="w-full justify-start gap-2.5 h-11 text-xs font-medium opacity-60 cursor-not-allowed border-dashed"
+              className="w-full justify-start gap-2.5 h-11 text-xs font-medium"
             >
-              <ClipboardList className="size-4 text-muted-foreground shrink-0" aria-hidden="true" />
+              <ClipboardList className="size-4 text-primary shrink-0" aria-hidden="true" />
               <div className="text-left truncate">
-                <div className="flex items-center gap-1.5">
-                  <p className="font-semibold text-foreground truncate">Complaints Queue</p>
-                </div>
+                <p className="font-semibold text-foreground truncate">Complaints Queue</p>
                 <p className="text-[10px] text-muted-foreground truncate">
-                  Phase 18 Scheduled Next
+                  Review & prioritize reports
                 </p>
               </div>
             </Button>
-            <Badge
-              variant="outline"
-              className="absolute -top-2 right-2 text-[9px] px-1.5 py-0 bg-primary/10 text-primary border-primary/30"
-            >
-              Phase 18
-            </Badge>
-          </div>
+          </Link>
         </div>
       </CardContent>
     </Card>
