@@ -135,3 +135,4 @@ export function AdminWorkspaceWelcome({ user }: AdminWorkspaceWelcomeProps) {
     </div>
   );
 }
+

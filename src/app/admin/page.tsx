@@ -1,50 +1,26 @@
 import type { Metadata } from "next";
-import { AdminPageHeader } from "@/components/admin/AdminPageHeader";
-import { AdminWorkspaceWelcome } from "@/components/admin/AdminWorkspaceWelcome";
-import { Badge } from "@/components/ui/badge";
-import { ShieldCheck } from "lucide-react";
-import { getVerifiedUser } from "@/lib/auth/authorization";
-import { isSupabaseConfigured } from "@/lib/supabase/server";
-import type { AdminUserSummary } from "@/types/domain";
+import { AdminDashboard } from "@/components/admin/AdminDashboard";
+import { getAdminOverviewData } from "@/lib/api/stats";
 
 export const metadata: Metadata = {
-  title: "Admin Portal · Overview | CivicPulse",
+  title: "Admin Operations Dashboard · Overview | CivicPulse",
   description:
-    "Administrative workspace for municipal operations, system oversight, and civic problem resolution.",
+    "Administrative dashboard for civic operations, complaint status distribution, and municipal issue tracking.",
 };
 
-export default async function AdminPage() {
-  let adminUser: AdminUserSummary;
+export default async function AdminPage({
+  searchParams,
+}: {
+  searchParams?: Promise<{ empty?: string; forceError?: string }>;
+}) {
+  const resolvedParams = searchParams ? await searchParams : undefined;
+  const empty = resolvedParams?.empty === "true";
+  const forceError = resolvedParams?.forceError === "true";
 
-  if (isSupabaseConfigured()) {
-    const auth = await getVerifiedUser();
-    adminUser = {
-      name: auth?.profile?.fullName || auth?.user.email?.split("@")[0] || "Administrator",
-      email: auth?.user.email || "admin@civicpulse.gov",
-      role: "admin",
-    };
-  } else {
-    adminUser = {
-      name: "Administrator",
-      email: "admin@civicpulse.gov",
-      role: "admin",
-    };
-  }
+  const initialData = await getAdminOverviewData({
+    empty,
+    forceError,
+  });
 
-  return (
-    <div className="space-y-6">
-      <AdminPageHeader
-        title="Admin Workspace"
-        description="Official municipal management console. Monitor system health, review operational roadmaps, and manage infrastructure triage."
-        badge={
-          <Badge variant="outline" className="text-xs border-primary/30 text-primary bg-primary/5 gap-1">
-            <ShieldCheck className="size-3" aria-hidden="true" />
-            <span>Municipal Console</span>
-          </Badge>
-        }
-      />
-
-      <AdminWorkspaceWelcome user={adminUser} />
-    </div>
-  );
+  return <AdminDashboard initialData={initialData} />;
 }
