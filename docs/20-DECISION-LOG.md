@@ -17,6 +17,7 @@
 | D11 | Proposed | Separate private/detail and peer-safe read projections | Publish original photos and exact pins | Reduce disclosure; approximate markers can still identify sparse locations | [Privacy](12-SECURITY-AND-PRIVACY.md) |
 | D12 | Confirmed snapshot | main, backend and frontend observed | Optional future develop | Preserve real refs and avoid assuming a new integration branch exists | [Git workflow](17-GITHUB-WORKFLOW.md) |
 | D13 | Proposed | Defer notifications, heatmaps, advanced analytics, offline and voice | Full release in one hackathon | Reserve time for authenticated report-to-resolution loop | [Roadmap](14-MVP-ROADMAP.md) |
+| D14 | Confirmed for frontend Phase 1, 2026-11-21 | The Phase 1 brief selects the companion backend REST contract, citizen/admin roles and three report statuses | Earlier numbered API proposal and D10 | Use camelCase, page/pageSize, support, admin triage and calculated priority. Assignment changes department. Future review policy awaits implementation. | [Wire contract](backend.md#5-rest-api-contract) and [client checks](../tests/api.test.mjs) |
 
 ## Reconciliation with the companion specifications
 

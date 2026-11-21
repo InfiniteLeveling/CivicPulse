@@ -1,0 +1,107 @@
+import type { ComplaintStats, ComplaintSummary } from "@/types/domain";
+
+/**
+ * Dedicated development fixture data for Phase 6 citizen dashboard visual development.
+ * Strictly labeled as demonstration/mock data until Phase 7-8 backend endpoints ship.
+ */
+export const mockCitizenStats: ComplaintStats = {
+  total: 3,
+  pending: 1,
+  inProgress: 1,
+  resolved: 1,
+  criticalActive: 0,
+  resolutionRate: 33.3,
+};
+
+export const mockEmptyStats: ComplaintStats = {
+  total: 0,
+  pending: 0,
+  inProgress: 0,
+  resolved: 0,
+  criticalActive: 0,
+  resolutionRate: null,
+};
+
+export const mockCitizenReports: ComplaintSummary[] = [
+  {
+    id: "rep-101",
+    reference: "CP-2001",
+    title: "Deep pothole at main campus crossing",
+    description: "Substantial asphalt breakdown posing hazard to cyclists and vehicles.",
+    category: "pothole",
+    severity: "high",
+    severityReviewed: true,
+    status: "in_progress",
+    visibility: "public",
+    latitude: 12.9716,
+    longitude: 77.5946,
+    department: { id: "dept-1", name: "Road Maintenance" },
+    supportCount: 7,
+    priority: {
+      score: 71,
+      severityPoints: 50,
+      supportPoints: 20,
+      agePoints: 1,
+      urgent: true,
+    },
+    createdAt: new Date(Date.now() - 1000 * 60 * 60 * 36).toISOString(),
+    updatedAt: new Date(Date.now() - 1000 * 60 * 60 * 6).toISOString(),
+    resolvedAt: null,
+    imageUrl: null,
+    viewerHasSupported: true,
+  },
+  {
+    id: "rep-102",
+    reference: "CP-2002",
+    title: "Unlit lamp post along canal walkway",
+    description: "Streetlight fixture fails after sunset creating dark unmonitored zone.",
+    category: "streetlight",
+    severity: "medium",
+    severityReviewed: false,
+    status: "pending",
+    visibility: "public",
+    latitude: 12.9722,
+    longitude: 77.5951,
+    department: { id: "dept-2", name: "Electrical Services" },
+    supportCount: 2,
+    priority: {
+      score: 36,
+      severityPoints: 30,
+      supportPoints: 6,
+      agePoints: 0,
+      urgent: false,
+    },
+    createdAt: new Date(Date.now() - 1000 * 60 * 60 * 18).toISOString(),
+    updatedAt: new Date(Date.now() - 1000 * 60 * 60 * 18).toISOString(),
+    resolvedAt: null,
+    imageUrl: null,
+    viewerHasSupported: false,
+  },
+  {
+    id: "rep-103",
+    reference: "CP-2003",
+    title: "Overflowing community waste container",
+    description: "Bin collection missed for several days, refuse spilling onto walkway.",
+    category: "garbage",
+    severity: "low",
+    severityReviewed: true,
+    status: "resolved",
+    visibility: "public",
+    latitude: 12.9705,
+    longitude: 77.5938,
+    department: { id: "dept-3", name: "Sanitation Dept" },
+    supportCount: 4,
+    priority: {
+      score: 27,
+      severityPoints: 15,
+      supportPoints: 12,
+      agePoints: 0,
+      urgent: false,
+    },
+    createdAt: new Date(Date.now() - 1000 * 60 * 60 * 96).toISOString(),
+    updatedAt: new Date(Date.now() - 1000 * 60 * 60 * 24).toISOString(),
+    resolvedAt: new Date(Date.now() - 1000 * 60 * 60 * 24).toISOString(),
+    imageUrl: null,
+    viewerHasSupported: true,
+  },
+];

@@ -22,6 +22,6 @@ Status: Not verified / Requires confirmation for the outstanding items below. De
 
 ## Previously unknown items resolved by inspection
 
-Before implementing API clients and review migrations, confirm the wire contract and whether a verified repair is a separate state or a feedback event. The earlier companion specs and numbered proposal use different representations. A decision now avoids a later client and data migration. See the [contract crosswalk](20-DECISION-LOG.md).
+The Phase 1 brief resolved the frontend wire contract and status vocabulary on 2026-11-21. The client uses the companion backend contract and the three states pending, in_progress and resolved. Backend implementation and future review migrations still require their own verification. See [decision D14](20-DECISION-LOG.md).
 
 Git showed main and remote-tracking main/backend/frontend at b40a765; the previous turn verified remote creation of backend and frontend. The baseline commit contains only empty wd.txt. No application implementation or deployment was found in the repository. Work on other machines and provider accounts is unverified. Recheck repository status next session and record the exact evidence in the [handoff](../PROJECT_CONTEXT.md).

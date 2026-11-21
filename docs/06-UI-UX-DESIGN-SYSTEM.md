@@ -11,8 +11,20 @@ Use a 4 px spacing unit: 8 for related controls, 16 within cards, 24 between fie
 | Primary blue / in progress | #2563EB | Primary actions, selected navigation and working status |
 | Deep navy | #0F172A | Headings, body copy, dark status text |
 | Background / surface | #F8FAFC / #FFFFFF | Canvas and cards |
-| Secondary text / border | #64748B / #E2E8F0 | Secondary copy and decorative dividers; give inputs a stronger visible outline |
+| Secondary text / border | #475569 / #E2E8F0 | Secondary copy and decorative dividers. Form controls use a stronger outline. |
 | Critical / pending / resolved | #DC2626 / #D97706 / #16A34A | Icon, stripe and written label; use navy text on pale surfaces for amber and green badges |
+
+## Phase 2 component library
+
+Run `npm run dev` and open `/dev/ui` for the interactive development reference. The tabs cover controls, civic indicators and feedback. All actions change local demonstration state. The production route returns 404.
+
+Use shadcn primitives from `src/components/ui` and CivicPulse components from `src/components/common`. Inter headings scale with the viewport. Use `.type-display` for hero text, `.body-large`, `.body-small` and `.caption` for supporting text, and `.content-container` for page gutters and the 80 rem maximum width. Default body text is 1 rem. The 4 px spacing scale, 8 px controls and 12 px cards and dialogs are defined in the theme. Primary actions use #1D4ED8 on hover, pale selections use #EFF6FF and informational accents use #0284C7.
+
+- `FormField` passes the control ID, required state, validation and description attributes to its child. Spread those props onto the focusable input. A pending field disables editing. Text inputs and textareas accept native `readOnly`.
+- `Button` provides primary, secondary, outline, ghost, destructive and link variants. Give icon-only sizes an accessible name. Set `loading` while a submission is pending.
+- `StatusBadge` and `SeverityBadge` accept domain enums. Supply severity provenance only when known. `PriorityBadge` accepts the backend's integer score and independent urgency flag. Invalid scores have an explicit label.
+- `ConfirmDialog` focuses Cancel on open and restores trigger focus on dismissal. A pending confirmation blocks repeat actions. Return the operation's Promise so failure can leave the dialog open for retry.
+- Cards, headings, loading indicators and feedback states accept display values or action slots from their callers. Preview the brand on both light and navy surfaces.
 
 ## Component behavior
 

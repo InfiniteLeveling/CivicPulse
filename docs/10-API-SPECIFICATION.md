@@ -1,5 +1,7 @@
 # Internal API specification
 
+**Frontend contract, Phase 1 (2026-11-21).** The client follows [backend.md §5](backend.md#5-rest-api-contract) for endpoint names, camelCase payloads, envelopes and page-number pagination. The catalog below preserves an earlier proposal. See [decision D14](20-DECISION-LOG.md).
+
 All endpoints are proposed. Same-origin browser uses verified Supabase session cookies. Always check origin on mutations. Clients send Accept application/json and Content-Type application/json for bodies except multipart upload (browser sets boundary), and text/csv for export. No body on GET. Only named query parameters are supported. All path IDs and letters in illustrative responses stand for UUIDs. Session identity supplies actor and department. Auth registration, login, recovery, sign-out and session refresh use Supabase Auth; there is no custom password endpoint.
 
 ## Representation and common errors

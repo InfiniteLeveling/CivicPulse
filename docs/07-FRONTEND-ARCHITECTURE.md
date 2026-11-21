@@ -4,6 +4,10 @@ One Next.js App Router tree serves the citizen and staff experiences. TypeScript
 
 ## Proposed tree
 
+Phase 1 places the homepage at `src/app/page.tsx`. Future pages use `(auth)` for login/register, `(public)` for the map and public report details, `(citizen)` for signed-in routes and `admin/` for the staff namespace. Each visible URL belongs to one page. Component directories under `src/components` cover ui, layout, common, forms, reports, maps and dashboard. Reserve `hooks`, `providers` and `config` for their first consumers. Git records these directories when they contain source files.
+
+The fetch client and endpoint catalog live in `src/lib/api`, shared DTOs in `src/types/domain.ts`, constants in `src/lib/constants`, and the browser client factory in `src/lib/supabase/client.ts`. Use the [canonical Phase 1 REST contract](backend.md#5-rest-api-contract) when extending the client. The tree below records the earlier proposal.
+
 ```text
 src/
   app/
@@ -39,5 +43,7 @@ Use Client Components for form state, browser geolocation, file preview, uploads
 5. Use segment loading and error boundaries with retry for lists, maps and details. Realtime can invalidate the affected authorized read. Refetch on focus as a fallback; do not broadcast full private rows.
 
 For OpenStreetMap tiles retain visible attribution, respect cache headers and avoid offline prefetch or bulk downloads. [OSM tile usage policy](https://operations.osmfoundation.org/policies/tiles/)
+
+If GPS permission is denied or a fix fails, let the reporter place the pin manually, including by keyboard. Load `leaflet/dist/leaflet.css` with the future client map and give the map container an explicit height.
 
 Paginate list reads, lazy-load map and analytics bundles and size authorized image previews. At narrow widths stack actions in reading order and test tab focus after route transitions. Exact routes and data dependencies appear in [page contracts](06-UI-UX-DESIGN-SYSTEM.md).
