@@ -239,3 +239,10 @@ export interface GetPublicReportsResult {
   isDemoData?: boolean;
 }
 
+export interface AdminUserSummary {
+  name: string;
+  email: string;
+  role: "admin";
+}
+
+
