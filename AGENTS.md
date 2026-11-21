@@ -4,6 +4,9 @@ Read [PROJECT_CONTEXT.md](PROJECT_CONTEXT.md) first. Inspect the current tree, b
 
 ## Implementation conventions
 
+- Inspect the current branch before editing. Implement backend work only on `backend`. Report a missing backend branch or a different checkout before switching. Preserve frontend work and the shared Next.js configuration. Push only with explicit authorization. Integration into `main` requires reviewed PRs in the order documented in the [integration guide](docs/INTEGRATION_GUIDE.md).
+- For implemented endpoints, keep [API_CONTRACT.md](docs/API_CONTRACT.md), shared TypeScript types and the emitting Route Handlers in sync.
+
 - Prioritize an independently verifiable P0 slice. Use TypeScript, Next.js App Router and the documented modular monolith. Reuse existing components and schemas, and justify new dependencies against the requested feature.
 - Keep handlers thin. Validate untrusted inputs with shared Zod contracts and enforce the verified session, role, ownership and current department on the server. Protect database rows, sensitive columns and storage objects independently.
 - Put workflow changes, routing, ranking and authorization decisions in services. Keep report/history updates atomic. Support safe retries and reject stale versions. Never let browser-provided role, score or storage path confer authority.
@@ -18,3 +21,13 @@ Read [PROJECT_CONTEXT.md](PROJECT_CONTEXT.md) first. Inspect the current tree, b
 2. Update the context snapshot with actual revision or uncommitted state, implemented slices, test environment/results, blockers and next milestone. Omit credentials, personal data and unverified deployment claims.
 3. Update the affected numbered specs alongside changed behavior. Add an entry to the [decision log](docs/20-DECISION-LOG.md) when a major technical or product choice changes; retain superseded decisions and link their replacements.
 4. Close resolved [questions](docs/21-OPEN-QUESTIONS.md) with evidence and state the impact of unresolved ones. Describe partial work and blocked checks accurately so the next session can resume.
+
+<!-- BEGIN:nextjs-agent-rules -->
+
+## This is NOT the Next.js you know
+
+This version has breaking changes — APIs, conventions, and file structure may all differ from your training data. Read the relevant guide in `node_modules/next/dist/docs/` (resolved from this file's directory; in monorepos the `next` package may not be visible from the repo root) before writing any code. Heed deprecation notices.
+
+This block is written and re-added by `next dev` — verify at `node_modules/next/dist/server/lib/generate-agent-files.js`. Removing it from a diff only re-creates the uncommitted change; committing it with your work keeps the tree clean.
+
+<!-- END:nextjs-agent-rules -->

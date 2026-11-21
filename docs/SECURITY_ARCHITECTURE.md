@@ -1,0 +1,29 @@
+# Database authorization · Phase 03
+
+## Trust boundaries
+
+Supabase Auth will verify session tokens. PostgreSQL evaluates table privileges, then row visibility and write eligibility using auth.uid() and the protected application profile. A logged-in person with a profile is a citizen by default. Both citizen and admin use the authenticated database role. An unsigned browser request has no trusted database identity; Data API anonymous access uses anon. The tests simulate the trusted subject at the database boundary. They do not validate token signatures, refresh, gateway settings or browser sessions.
+
+The threats addressed here are cross-account access, self-promotion, disclosure through overly broad SELECT, spoofed votes, forged evidence and unaudited triage. Credentials with infrastructure authority, SQL Editor access or independent object-store permissions sit outside ordinary client RLS. Keep the private schema out of Data API exposed schemas, disable anonymous Auth sign-in until its account policy is agreed, and restrict operator access before deploying.
+
+## Policies and privileged code
+
+- Run both migrations as the trusted owner of the CivicPulse tables. The security migration checks the owner and RLS flags, rejects unrecognized policies, removes direct client grants on the managed tables and columns, and checks for access inherited through other roles. It reinstalls the named CivicPulse policies and least-privilege grants in one transaction.
+- civicpulse_private.is_admin() is a stable, no-argument SECURITY DEFINER function. The table owner looks up only the current auth.uid() by profile primary key and returns a boolean. Authenticated has schema USAGE and function EXECUTE. Anonymous and PUBLIC have neither grant. No user metadata, user-selected subject or dynamic SQL participates. The helper's empty search_path and qualified object references prevent name substitution.
+- civicpulse_private.advance_report_version() is an invoker-only BEFORE UPDATE trigger function. civicpulse_private.record_report_event() is an owner-rights AFTER INSERT/UPDATE trigger function. Both pin search_path and have no client EXECUTE grant. Creation writes version-1 history and the author's initial vote. An update records old/new triage fields, status and authenticated actor. Failure rolls back the entire write; missing identity is rejected. A future status service must use this one audit writer and extend it for transition reasons if needed. Do not also insert a history row or initial vote in application code.
+- Profiles have an identity-only SELECT policy. Reports consult the owner or admin helper. History and images consult reports, and reports never consult history or images for authorization. Votes check the owner-rights public projection for eligibility. This directional dependency avoids policy recursion. Primary keys support role and parent lookups, and creator, vote and report/version indexes support scoped lists.
+- The owner-rights security-barrier map view is deliberately accessible to anon and authenticated with SELECT only. It filters publication and moderation flags and outputs six named fields with coarse coordinates. Broad privileges on newly created views and functions are revoked before commit. PostgreSQL applies owner access to underlying tables here. Review every projected column, expression and predicate before extending the view. See [PostgreSQL view semantics](https://www.postgresql.org/docs/current/sql-createview.html) and [Supabase RLS guidance](https://supabase.com/docs/guides/database/postgres/row-level-security).
+
+## Operational decisions
+
+Provision a citizen profile through trusted Phase 04 onboarding after identity verification. To bootstrap an admin, verify the named operator through the institution, identify the correct Auth UUID, have an authorized database operator approve and record the role grant, and review/revoke it on offboarding. There is no client profile insert or admin promotion endpoint. Roles are read from PostgreSQL for each statement; do not cache authority in mutable account metadata.
+
+User-scoped Next.js requests need no service-role credentials. SQL owners can bypass RLS and rewrite records; protect owner access and plan independent audit retention before live operations. Coarse maps can still identify sensitive sites. Public plus listed means opted into discovery and currently visible, not independently vetted by staff. Keep synthetic data until the pilot approves the disclosure. Vote eligibility is evaluated against the statement's visible report state; older votes survive later closure/hiding. Future read APIs must recheck current visibility before exposing aggregates. Rate limits, upload verification, expected-version retries, anti-spam and abuse review remain application work. Database-level intake currently does not require an attached image; complete attachment and retry semantics must be designed before live release.
+
+## Verify through the Supabase Dashboard
+
+Follow the [Dashboard setup guide](SUPABASE_DASHBOARD_SETUP.md) to apply both migrations, seed departments and run the three suites. The role suite sets up its own temporary Auth identities, switches to the anonymous and authenticated database roles, and rolls its fixtures back. Confirm that civicpulse_private is excluded from Data API exposed schemas. Use the [permission matrix](ACCESS_CONTROL_MATRIX.md) when reviewing policy changes.
+
+## Verification evidence
+
+The scripts passed together on an isolated PostgreSQL 17.12 server with Supabase role and Auth fixtures. The catalog and constraint suites passed both before and after policy installation. Reapplying the migrations and seed and rerunning all three suites also passed. Signed-token behavior and the hosted project configuration require verification in the development project.

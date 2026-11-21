@@ -1,5 +1,7 @@
 # Database design
 
+**Historical design proposal.** The implemented Phase 02 [schema](DATABASE_SCHEMA.md) and [frontend contract](DATABASE_CONTRACT.md) supersede the column names, roles, statuses, categories, staging and score semantics below. Refer to them when building or testing.
+
 Proposed single-campus PostgreSQL schema. No tables or migrations exist in the inspected commit. All timestamps are UTC timestamptz. UUID primary keys default to generated UUIDs except profiles.id and the composite vote key. Fields are required unless marked nullable. Short identifiers A, C, D, R and I in examples denote synthetic UUIDs for an admin, citizen, department, report and image. They are display aliases only.
 
 ```mermaid
