@@ -80,4 +80,17 @@ begin
 end;
 $storage_hardening$;
 
+-- ============================================================================
+-- 5. Service Role Access for Server & Admin SDK
+-- ============================================================================
+do $service_role_grants$
+begin
+  if exists (select from pg_roles where rolname = 'service_role') then
+    grant all on all tables in schema public to service_role;
+    grant all on all sequences in schema public to service_role;
+    grant all on all routines in schema public to service_role;
+  end if;
+end;
+$service_role_grants$;
+
 commit;

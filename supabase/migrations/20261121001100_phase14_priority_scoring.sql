@@ -12,7 +12,6 @@ create or replace function public.civicpulse_calculate_priority(
 returns integer
 language sql
 immutable
-leakproof
 set search_path = ''
 as $$
   select least(

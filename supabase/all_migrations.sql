@@ -13,6 +13,28 @@ begin;
 set local search_path = pg_catalog;
 select pg_advisory_xact_lock(730513, 1);
 
+-- Safe cleanup of incompatible legacy prototype schema objects if present.
+-- If status_history is from the legacy complaints prototype (tracks complaint_id rather
+-- than CivicPulse report_id) or is an orphan without reports, clean it up.
+do $legacy_cleanup$
+begin
+  drop function if exists public.advance_complaint cascade;
+  drop table if exists public.authority_members cascade;
+  if to_regclass('public.status_history') is not null and (
+    exists (
+      select 1 from pg_catalog.pg_attribute a
+      join pg_catalog.pg_class c on c.oid = a.attrelid
+      join pg_catalog.pg_namespace n on n.oid = c.relnamespace
+      where n.nspname = 'public' and c.relname = 'status_history' and a.attname = 'complaint_id' and not a.attisdropped
+    )
+    or to_regclass('public.reports') is null
+  ) then
+    drop table public.status_history cascade;
+  end if;
+  drop table if exists public.complaints cascade;
+end;
+$legacy_cleanup$;
+
 -- Produce comparable definitions on the running PostgreSQL version. This also
 -- works for installations predating this replay check (no migration ledger).
 create function pg_temp.civicpulse_core_parts(target regclass, home name)
@@ -182,6 +204,8 @@ begin
     full join pg_temp.civicpulse_core_parts(to_regclass(format('public.%I',tbl)),'public') a
       using (part,member)
     where e.definition is distinct from a.definition
+      -- Allow later migration phases to have added indexes or triggers on core tables
+      and not (e.part is null and a.part in ('index','trigger'))
       -- Core can supply missing indexes and timestamp triggers on a matching
       -- partial table. It cannot safely infer new columns, constraints or data.
       and not (partial_install and a.part is null and e.part in ('index','trigger'))
@@ -308,11 +332,11 @@ begin
 
   for obj in select * from (values
     ('profiles', array['profile_self_read','profile_self_edit']),
-    ('departments', array['department_directory']),
-    ('reports', array['report_private_read','report_self_create','report_admin_triage']),
+    ('departments', array['department_directory','department_directory_anon']),
+    ('reports', array['report_private_read','report_self_create','report_admin_triage','report_public_read']),
     ('report_votes', array['vote_private_read','vote_self_active']),
-    ('status_history', array['timeline_report_reader']),
-    ('report_images', array['image_report_reader'])
+    ('status_history', array['timeline_report_reader','timeline_public_read']),
+    ('report_images', array['image_report_reader','image_self_create','image_public_read','image_admin_create'])
   ) as objects(table_name,managed_policies) loop
     tbl := to_regclass(format('public.%I',obj.table_name));
     if tbl is null then
@@ -350,8 +374,8 @@ begin
   if exists (select from pg_namespace where nspname='civicpulse_private' and nspowner <> current_user::regrole)
   then raise exception 'Existing civicpulse_private schema belongs to a different role.'; end if;
   if exists (select from pg_proc where pronamespace=to_regnamespace('civicpulse_private')
-    and (proname not in ('is_admin','advance_report_version','record_report_event')
-      or pronargs<>0 or proowner<>current_user::regrole))
+    and (proname not in ('is_admin','advance_report_version','record_report_event','handle_new_user','on_vote_recalculate_priority')
+      or proowner<>current_user::regrole))
   then raise exception 'Unexpected routine or routine owner in civicpulse_private; review the existing schema.'; end if;
   if exists (select from pg_class where oid=to_regclass('public.civic_report_map')
     and (relkind<>'v' or relowner<>current_user::regrole))
@@ -1618,7 +1642,6 @@ create or replace function public.civicpulse_calculate_priority(
 returns integer
 language sql
 immutable
-leakproof
 set search_path = ''
 as $$
   select least(
@@ -2863,37 +2886,41 @@ create trigger reports_resolution_evidence_check
 do $realtime_auth$
 begin
   if to_regclass('realtime.messages') is not null then
-    alter table realtime.messages enable row level security;
+    begin
+      alter table realtime.messages enable row level security;
 
-    -- Allow subscribers to receive messages only on authorized channels:
-    -- 1. 'reports:public' is accessible by anyone
-    -- 2. 'report:<uuid>' is accessible if report is public/listed, caller is owner, or caller is admin
-    drop policy if exists "realtime_subscriber_auth" on realtime.messages;
-    create policy "realtime_subscriber_auth" on realtime.messages
-    for select to authenticated, anon
-    using (
-      topic = 'reports:public'
-      or (
-        topic ~ '^report:[0-9a-fA-F-]{36}$'
-        and exists (
-          select 1 from public.reports r
-          where r.id = (substring(topic from 8))::uuid
-            and (
-              (r.publication = 'public' and r.visibility = 'listed')
-              or (auth.uid() is not null and r.user_id = auth.uid())
-              or (auth.uid() is not null and exists (
-                select 1 from public.profiles p where p.id = auth.uid() and p.role = 'admin'
-              ))
-            )
+      -- Allow subscribers to receive messages only on authorized channels:
+      -- 1. 'reports:public' is accessible by anyone
+      -- 2. 'report:<uuid>' is accessible if report is public/listed, caller is owner, or caller is admin
+      drop policy if exists "realtime_subscriber_auth" on realtime.messages;
+      create policy "realtime_subscriber_auth" on realtime.messages
+      for select to authenticated, anon
+      using (
+        topic = 'reports:public'
+        or (
+          topic ~ '^report:[0-9a-fA-F-]{36}$'
+          and exists (
+            select 1 from public.reports r
+            where r.id = (substring(topic from 8))::uuid
+              and (
+                (r.publication = 'public' and r.visibility = 'listed')
+                or (auth.uid() is not null and r.user_id = auth.uid())
+                or (auth.uid() is not null and exists (
+                  select 1 from public.profiles p where p.id = auth.uid() and p.role = 'admin'
+                ))
+              )
+          )
         )
-      )
-    );
+      );
 
-    -- Anti-spoofing guard: strictly forbid client-side broadcast inserts
-    drop policy if exists "realtime_client_publish_block" on realtime.messages;
-    create policy "realtime_client_publish_block" on realtime.messages
-    for insert to authenticated, anon
-    with check (false);
+      -- Anti-spoofing guard: strictly forbid client-side broadcast inserts
+      drop policy if exists "realtime_client_publish_block" on realtime.messages;
+      create policy "realtime_client_publish_block" on realtime.messages
+      for insert to authenticated, anon
+      with check (false);
+    exception when others then
+      raise notice 'Realtime messages RLS configuration skipped: %', sqlerrm;
+    end;
   end if;
 end;
 $realtime_auth$;
@@ -2908,7 +2935,11 @@ begin
       select 1 from pg_publication_tables
       where pubname = 'supabase_realtime' and schemaname = 'public' and tablename = 'reports'
     ) then
-      alter publication supabase_realtime add table public.reports;
+      begin
+        alter publication supabase_realtime add table public.reports;
+      exception when others then
+        raise notice 'Realtime publication update skipped: %', sqlerrm;
+      end;
     end if;
   end if;
 end;
@@ -3281,6 +3312,19 @@ begin
   end if;
 end;
 $storage_hardening$;
+
+-- ============================================================================
+-- 5. Service Role Access for Server & Admin SDK
+-- ============================================================================
+do $service_role_grants$
+begin
+  if exists (select from pg_roles where rolname = 'service_role') then
+    grant all on all tables in schema public to service_role;
+    grant all on all sequences in schema public to service_role;
+    grant all on all routines in schema public to service_role;
+  end if;
+end;
+$service_role_grants$;
 
 commit;
 

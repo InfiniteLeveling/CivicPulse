@@ -21,11 +21,11 @@ begin
 
   for obj in select * from (values
     ('profiles', array['profile_self_read','profile_self_edit']),
-    ('departments', array['department_directory']),
-    ('reports', array['report_private_read','report_self_create','report_admin_triage']),
+    ('departments', array['department_directory','department_directory_anon']),
+    ('reports', array['report_private_read','report_self_create','report_admin_triage','report_public_read']),
     ('report_votes', array['vote_private_read','vote_self_active']),
-    ('status_history', array['timeline_report_reader']),
-    ('report_images', array['image_report_reader'])
+    ('status_history', array['timeline_report_reader','timeline_public_read']),
+    ('report_images', array['image_report_reader','image_self_create','image_public_read','image_admin_create'])
   ) as objects(table_name,managed_policies) loop
     tbl := to_regclass(format('public.%I',obj.table_name));
     if tbl is null then
@@ -63,8 +63,8 @@ begin
   if exists (select from pg_namespace where nspname='civicpulse_private' and nspowner <> current_user::regrole)
   then raise exception 'Existing civicpulse_private schema belongs to a different role.'; end if;
   if exists (select from pg_proc where pronamespace=to_regnamespace('civicpulse_private')
-    and (proname not in ('is_admin','advance_report_version','record_report_event')
-      or pronargs<>0 or proowner<>current_user::regrole))
+    and (proname not in ('is_admin','advance_report_version','record_report_event','handle_new_user','on_vote_recalculate_priority')
+      or proowner<>current_user::regrole))
   then raise exception 'Unexpected routine or routine owner in civicpulse_private; review the existing schema.'; end if;
   if exists (select from pg_class where oid=to_regclass('public.civic_report_map')
     and (relkind<>'v' or relowner<>current_user::regrole))

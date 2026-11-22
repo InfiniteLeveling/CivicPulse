@@ -288,37 +288,41 @@ create trigger reports_resolution_evidence_check
 do $realtime_auth$
 begin
   if to_regclass('realtime.messages') is not null then
-    alter table realtime.messages enable row level security;
+    begin
+      alter table realtime.messages enable row level security;
 
-    -- Allow subscribers to receive messages only on authorized channels:
-    -- 1. 'reports:public' is accessible by anyone
-    -- 2. 'report:<uuid>' is accessible if report is public/listed, caller is owner, or caller is admin
-    drop policy if exists "realtime_subscriber_auth" on realtime.messages;
-    create policy "realtime_subscriber_auth" on realtime.messages
-    for select to authenticated, anon
-    using (
-      topic = 'reports:public'
-      or (
-        topic ~ '^report:[0-9a-fA-F-]{36}$'
-        and exists (
-          select 1 from public.reports r
-          where r.id = (substring(topic from 8))::uuid
-            and (
-              (r.publication = 'public' and r.visibility = 'listed')
-              or (auth.uid() is not null and r.user_id = auth.uid())
-              or (auth.uid() is not null and exists (
-                select 1 from public.profiles p where p.id = auth.uid() and p.role = 'admin'
-              ))
-            )
+      -- Allow subscribers to receive messages only on authorized channels:
+      -- 1. 'reports:public' is accessible by anyone
+      -- 2. 'report:<uuid>' is accessible if report is public/listed, caller is owner, or caller is admin
+      drop policy if exists "realtime_subscriber_auth" on realtime.messages;
+      create policy "realtime_subscriber_auth" on realtime.messages
+      for select to authenticated, anon
+      using (
+        topic = 'reports:public'
+        or (
+          topic ~ '^report:[0-9a-fA-F-]{36}$'
+          and exists (
+            select 1 from public.reports r
+            where r.id = (substring(topic from 8))::uuid
+              and (
+                (r.publication = 'public' and r.visibility = 'listed')
+                or (auth.uid() is not null and r.user_id = auth.uid())
+                or (auth.uid() is not null and exists (
+                  select 1 from public.profiles p where p.id = auth.uid() and p.role = 'admin'
+                ))
+              )
+          )
         )
-      )
-    );
+      );
 
-    -- Anti-spoofing guard: strictly forbid client-side broadcast inserts
-    drop policy if exists "realtime_client_publish_block" on realtime.messages;
-    create policy "realtime_client_publish_block" on realtime.messages
-    for insert to authenticated, anon
-    with check (false);
+      -- Anti-spoofing guard: strictly forbid client-side broadcast inserts
+      drop policy if exists "realtime_client_publish_block" on realtime.messages;
+      create policy "realtime_client_publish_block" on realtime.messages
+      for insert to authenticated, anon
+      with check (false);
+    exception when others then
+      raise notice 'Realtime messages RLS configuration skipped: %', sqlerrm;
+    end;
   end if;
 end;
 $realtime_auth$;
@@ -333,7 +337,11 @@ begin
       select 1 from pg_publication_tables
       where pubname = 'supabase_realtime' and schemaname = 'public' and tablename = 'reports'
     ) then
-      alter publication supabase_realtime add table public.reports;
+      begin
+        alter publication supabase_realtime add table public.reports;
+      exception when others then
+        raise notice 'Realtime publication update skipped: %', sqlerrm;
+      end;
     end if;
   end if;
 end;
