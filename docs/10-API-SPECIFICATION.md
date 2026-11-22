@@ -1,10 +1,12 @@
 # Internal API specification
 
-All endpoints are proposed. Same-origin browser uses verified Supabase session cookies. Always check origin on mutations. Clients send Accept application/json and Content-Type application/json for bodies except multipart upload (browser sets boundary), and text/csv for export. No body on GET. Only named query parameters are supported. All path IDs and letters in illustrative responses stand for UUIDs. Session identity supplies actor and department. Auth registration, login, recovery, sign-out and session refresh use Supabase Auth; there is no custom password endpoint.
+Phase 01 implements only `GET /api/health`. The remaining endpoints are proposed. Same-origin mutations will require origin checks, validated input and a verified session. Supabase Auth will handle registration, login, recovery and sign-out. IDs in examples below stand for UUIDs.
 
 ## Representation and common errors
 
-Wrap every success payload shown below as `{"data":<payload>,"request_id":"…"}`. CSV export returns a text/csv attachment directly. An error returns `{"error":{"code":"VALIDATION","message":"Check the marked fields","fields":{"description":"Enter 10–1000 characters"}},"request_id":"…"}`. Include fields only for safe validation details. Use 400 malformed request, 401 missing/expired session, 403 disallowed operation, 404 missing or inaccessible object, 409 stale version/invalid state, 413 too large, 415 unsupported media, 422 invalid input, 429 quota with Retry-After, 503 dependency unavailable. These common errors apply across the catalog. Limits below are proposed per-account starting values, subject to pilot load tests. Use private/no-store caching for user-specific reads.
+The implemented JSON helpers return `{"success":true,"data":<payload>}` with an optional message, or `{"success":false,"error":{"code":"VALIDATION_ERROR","message":"Invalid request data"}}`. Known errors map to 422 validation, 401 unauthorized, 403 forbidden, 404 not found, 409 conflict, 429 rate limited or 503 service unavailable. Unexpected errors return a generic 500. Causes remain internal. Responses use no-store caching. Request IDs, field-level errors, upload-specific codes and Retry-After headers are deferred until their callers exist. CSV export is a proposed file response.
+
+The health endpoint requires no authentication, body, query or provider credentials. It returns HTTP 200 with `{"success":true,"data":{"status":"ok","service":"civicpulse-backend"}}`. It checks only the running application process.
 
 ## Endpoint contracts
 

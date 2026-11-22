@@ -20,6 +20,12 @@
 
 ## Reconciliation with the companion specifications
 
+**D16 · Confirmed · Phase 03 authorization.** Grant admin-only triage on department, severity and visibility, and expose public cases through a filtered, coarse projection. A single database trigger writes initial support and report history. Status transitions and private media attachment require subsequent controlled workflows. See [security architecture](SECURITY_ARCHITECTURE.md).
+
+**D15 · Confirmed · 2026-11-21 · Phase 02 schema.** The database brief finalizes citizen/admin, seven categories including damaged_infrastructure, and three statuses. Citizen verification remains a future review action. Retain per-author submission uniqueness, versioned history and private publication; store the bounded priority with zero uncalculated. Attached image metadata requires a report ID, so transient uploads need independent staging in Phase 05. Earlier schema proposals are preserved as design history. See the [implemented column dictionary](DATABASE_SCHEMA.md) and [integration contract](DATABASE_CONTRACT.md).
+
+**D14 · Confirmed · 2026-11-21 · Phase 01 response contract.** The phase implementation request specifies a success discriminant, a data payload and a safe code/message error object. Use that envelope in new JSON handlers. The earlier proposal included request IDs and field details; these remain future extensions. The health route exercises the shared success path. See the [implemented contract](10-API-SPECIFICATION.md).
+
 The [original PRD](PRD.md), [frontend specification](frontend.md) and [backend specification](backend.md) appeared during this documentation session. All three describe prospective work. The current brief controls the solo schedule and release priorities. Use the numbered documents together for the proposed contracts. No deployed consumer or migration was found.
 
 | Topic | Working resolution |
