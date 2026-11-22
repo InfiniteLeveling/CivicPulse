@@ -17,7 +17,8 @@
     "test:frontend": "node --test tests/*.test.mjs",
     "test:ui": "node --test tests/browser/*.test.mjs",
     "check:env": "node --experimental-strip-types --import ./tests/register.mjs scripts/deployment/check-env.ts",
-    "test:integration": "node --experimental-strip-types --import ./tests/register.mjs scripts/integration/final-smoke-test.ts"
+    "test:integration": "node --experimental-strip-types --import ./tests/register.mjs scripts/integration/final-smoke-test.ts",
+    "seed:users": "node scripts/seed-test-users.mjs"
   },
   "dependencies": {
     "@base-ui/react": "1.9.0",
