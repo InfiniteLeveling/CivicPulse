@@ -9,6 +9,7 @@ import { BrandLogo } from "@/components/common/BrandLogo";
 import { Button, buttonVariants } from "@/components/ui/button";
 import { LogoutButton } from "@/components/auth/LogoutButton";
 import { EasyReadingToggle } from "@/components/common/EasyReadingToggle";
+import { ThemeToggle } from "@/components/theme/ThemeToggle";
 import { publicDestinations, publicLinks } from "@/lib/constants/public-navigation";
 import { createClient, isSupabaseConfigured } from "@/lib/supabase/client";
 import { cn } from "@/lib/utils";
@@ -145,6 +146,7 @@ export function Navbar() {
   const actions = user ? (
     <>
       <EasyReadingToggle variant="ghost" size="sm" className="hidden sm:inline-flex" />
+      <ThemeToggle variant="ghost" size="sm" className="hidden sm:inline-flex" />
       <span className="text-xs font-semibold text-muted-foreground hidden xl:inline max-w-[120px] truncate">
         {displayName}
       </span>
@@ -170,6 +172,7 @@ export function Navbar() {
   ) : (
     <>
       <EasyReadingToggle variant="ghost" size="sm" className="hidden sm:inline-flex" />
+      <ThemeToggle variant="ghost" size="sm" className="hidden sm:inline-flex" />
       <PublicLink
         href={publicDestinations.signIn}
         onClick={() => navigate(publicDestinations.signIn)}
@@ -215,8 +218,7 @@ export function Navbar() {
 
         <div className="hidden items-center gap-2 lg:flex">{actions}</div>
 
-        <div className="flex items-center gap-2 lg:hidden">
-          <EasyReadingToggle variant="ghost" size="sm" />
+        <div className="flex items-center gap-1.5 lg:hidden">
           <Button
             ref={trigger}
             size="icon"

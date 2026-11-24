@@ -1,5 +1,23 @@
 # CivicPulse project handoff
 
+## Global Dark Mode, Dual-Theme Design System & Theme Animations
+
+**Complete locally on 2026-11-25.** The `frontend` working tree contains the complete implementation of the CivicPulse Global Dark Mode and Dual-Theme Design System. The application now supports three appearance preferences (**Light Mode**, **Dark Mode**, and **System Default**) across all public, citizen, and administrator surfaces with midnight navy aesthetics, fluid icon rotations, accessible focus states, and zero-FOUC hydration safety.
+
+| Area | Global Dark Mode Changes |
+|---|---|
+| Theme Provider & Persistence | Integrated `next-themes@0.4.6` in `src/components/theme/ThemeProvider.tsx` wrapping the application root in `src/app/layout.tsx`. Configured `attribute="class"`, `defaultTheme="system"`, `storageKey="civicpulse_theme"`, and `suppressHydrationWarning` on `<html>` to completely eliminate theme flash and hydration mismatches. |
+| Semantic Dark Palette | Extended `src/app/globals.css` with midnight navy design tokens: Background (`#020617`), Surface/Card (`#0F172A`), Elevated Surface (`#1E293B`), Hover Surface (`#334155`), Primary Text (`#F8FAFC`), Secondary Text (`#CBD5E1`), Muted Text (`#94A3B8`), Border (`#334155`), Control Border (`#475569`), Accent Blue (`#60A5FA`), and Accent Surface (`#172554`). |
+| Accessible Theme Toggle | Created `src/components/theme/ThemeToggle.tsx` providing an accessible appearance menu with text labels, helper descriptions, and active checkmarks for Light Mode, Dark Mode, and System Default. Uses Lucide `Sun`, `Moon`, and `Monitor` icons with smooth rotation and fade transitions. Leverages `useMounted` hook to ensure zero SSR/CSR hydration discrepancy. |
+| Multi-Portal Toggle Integration | Placed `<ThemeToggle />` across all major app headers: Desktop Navbar & Mobile Drawer (`Navbar.tsx`), Citizen Dashboard Header (`CitizenTopbar.tsx`), Admin Topbar (`AdminTopbar.tsx`), Admin Mobile Drawer (`AdminMobileNav.tsx`), and Public Footer (`Footer.tsx`). |
+| Status Badges Dark Palette | Configured high-contrast dark mode status badges in `globals.css`: Pending (`#422006` bg, `#FCD34D` fg), In Progress (`#172554` bg, `#93C5FD` fg), Resolved (`#052E16` bg, `#86EFAC` fg), Critical/Urgent (`#450A0A` bg, `#FCA5A5` fg), and Private (`#1E293B` bg, `#CBD5E1` fg). |
+| Theme-Aware Recharts | Updated all analytical visualizations (`ComplaintStatusChart`, `ComplaintCategoryChart`, `ComplaintSeverityChart`, `ComplaintTrendChart`, `DepartmentWorkloadChart`) to bind gridlines, axes, tooltips, and text directly to theme CSS variables (`var(--card)`, `var(--border)`, `var(--foreground)`, `var(--muted-foreground)`). |
+| Dark Mode Maps | Styled Leaflet map container, zoom controls, and marker popups in dark mode (`.dark .leaflet-container`, `.dark .leaflet-bar a`, `.dark .leaflet-popup-content-wrapper`) while preserving authentic OpenStreetMap base tiles without destructive CSS color inversion. |
+| Form & Draft Preservation | Verified that toggling between Light, Dark, and System modes never reloads the page, never remounts the reporting wizard, never invalidates form inputs or coordinates, and never issues unintended backend network requests. |
+| Testing & Verification | Added `tests/browser/theme.test.mjs` verifying theme menu interactions, dark class injection, localStorage persistence, cross-navigation theme memory, and form input preservation. All 112 unit tests across 16 suites pass (`npm test`). All 112 browser tests across 13 suites pass (`npm run test:ui`). TypeScript typecheck (`npm run typecheck`) and ESLint (`npm run lint`) pass with zero errors. Production Turbopack build succeeds with all 14 routes optimized. Zero backend code or database schemas touched. |
+
+---
+
 ## Global UI/UX Redesign, Premium Visual Experience, Animations & Accessibility
 
 **Complete locally on 2026-11-25.** The `frontend` working tree contains the global UI/UX redesign, premium visual polish, motion design system, and multi-persona accessibility enhancements. CivicPulse now provides an accessible, intuitive, modern, and trustworthy experience tailored for citizens, senior citizens, mobile smartphone users, municipal administrators, and hackathon evaluation panels.

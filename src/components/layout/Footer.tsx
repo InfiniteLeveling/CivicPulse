@@ -1,6 +1,7 @@
 import { PublicLink } from "@/components/layout/PublicLink";
 import { BrandLogo } from "@/components/common/BrandLogo";
 import { EasyReadingToggle } from "@/components/common/EasyReadingToggle";
+import { ThemeToggle } from "@/components/theme/ThemeToggle";
 import { APP_NAME, APP_TAGLINE } from "@/lib/constants";
 import { publicDestinations, publicLinks } from "@/lib/constants/public-navigation";
 
@@ -18,8 +19,9 @@ export function Footer() {
           <p className="mt-1 max-w-xs text-xs text-slate-400">
             Intelligent civic problem reporting and resolution platform for residents and maintenance teams.
           </p>
-          <div className="pt-2">
+          <div className="pt-2 flex items-center gap-2">
             <EasyReadingToggle variant="outline" size="sm" className="border-slate-800 text-slate-300 hover:bg-slate-900" />
+            <ThemeToggle variant="outline" size="sm" className="border-slate-800 text-slate-300 hover:bg-slate-900" />
           </div>
         </div>
 

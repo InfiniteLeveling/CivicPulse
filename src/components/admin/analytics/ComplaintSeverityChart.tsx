@@ -56,9 +56,9 @@ export function ComplaintSeverityChart({ data }: ComplaintSeverityChartProps) {
                 data={data}
                 margin={{ top: 15, right: 20, left: 0, bottom: 5 }}
               >
-                <CartesianGrid strokeDasharray="3 3" vertical={false} opacity={0.3} />
-                <XAxis dataKey="label" fontSize={11} tickLine={false} />
-                <YAxis allowDecimals={false} fontSize={11} tickLine={false} />
+                <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="var(--border)" opacity={0.6} />
+                <XAxis dataKey="label" fontSize={11} tickLine={false} stroke="var(--border)" tick={{ fill: "var(--muted-foreground)" }} />
+                <YAxis allowDecimals={false} fontSize={11} tickLine={false} stroke="var(--border)" tick={{ fill: "var(--muted-foreground)" }} />
                 <Tooltip
                   formatter={(
                     value: React.ReactNode,
@@ -71,9 +71,11 @@ export function ComplaintSeverityChart({ data }: ComplaintSeverityChartProps) {
                   contentStyle={{
                     backgroundColor: "var(--card)",
                     borderColor: "var(--border)",
+                    color: "var(--foreground)",
                     borderRadius: "0.5rem",
                     fontSize: "12px",
                   }}
+                  itemStyle={{ color: "var(--foreground)" }}
                 />
                 <Bar dataKey="count" radius={[4, 4, 0, 0]} maxBarSize={36}>
                   {data.map((entry) => (

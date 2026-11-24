@@ -4,6 +4,7 @@ import { useEffect, useRef } from "react";
 import Link from "next/link";
 import { X, Shield } from "lucide-react";
 import { BrandLogo } from "@/components/common/BrandLogo";
+import { ThemeToggle } from "@/components/theme/ThemeToggle";
 import { Badge } from "@/components/ui/badge";
 import { LogoutButton } from "@/components/auth/LogoutButton";
 import { ADMIN_NAV_GROUPS } from "@/config/admin-navigation";
@@ -72,14 +73,17 @@ export function AdminMobileNav({ open, onClose, user }: AdminMobileNavProps) {
               Admin
             </Badge>
           </Link>
-          <button
-            type="button"
-            onClick={onClose}
-            aria-label="Close navigation drawer"
-            className="size-8 rounded-lg flex items-center justify-center text-slate-400 hover:text-white hover:bg-slate-800 transition-colors"
-          >
-            <X className="size-5" aria-hidden="true" />
-          </button>
+          <div className="flex items-center gap-1.5">
+            <ThemeToggle variant="ghost" size="sm" className="text-slate-300 hover:text-white hover:bg-slate-800" />
+            <button
+              type="button"
+              onClick={onClose}
+              aria-label="Close navigation drawer"
+              className="size-8 rounded-lg flex items-center justify-center text-slate-400 hover:text-white hover:bg-slate-800 transition-colors"
+            >
+              <X className="size-5" aria-hidden="true" />
+            </button>
+          </div>
         </div>
 
         {/* Navigation Groups */}

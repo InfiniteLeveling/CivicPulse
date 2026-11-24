@@ -5,6 +5,7 @@ import { PlusCircle, Sparkles } from "lucide-react";
 import { buttonVariants } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { CitizenProfileMenu, type CitizenUserSummary } from "./CitizenProfileMenu";
+import { ThemeToggle } from "@/components/theme/ThemeToggle";
 import { BrandLogo } from "@/components/common/BrandLogo";
 import { cn } from "@/lib/utils";
 
@@ -53,6 +54,8 @@ export function CitizenTopbar({ user, isDemoData }: CitizenTopbarProps) {
             <PlusCircle className="size-4" aria-hidden="true" />
             <span>Report Issue</span>
           </Link>
+
+          <ThemeToggle variant="ghost" size="sm" />
 
           <CitizenProfileMenu user={user} />
         </div>

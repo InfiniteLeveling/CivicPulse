@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
 import localFont from "next/font/local";
 import { Toaster } from "sonner";
+import { ThemeProvider } from "@/components/theme/ThemeProvider";
 import { APP_NAME } from "@/lib/constants";
 import "./globals.css";
 
@@ -19,13 +20,15 @@ export const metadata: Metadata = {
 
 export default function RootLayout({ children }: Readonly<{ children: React.ReactNode }>) {
   return (
-    <html lang="en" className={inter.variable}>
+    <html lang="en" className={inter.variable} suppressHydrationWarning>
       <body>
-        <a href="#main-content" className="skip-to-content">
-          Skip to main content
-        </a>
-        {children}
-        <Toaster position="top-right" richColors closeButton />
+        <ThemeProvider>
+          <a href="#main-content" className="skip-to-content">
+            Skip to main content
+          </a>
+          {children}
+          <Toaster position="top-right" richColors closeButton />
+        </ThemeProvider>
       </body>
     </html>
   );

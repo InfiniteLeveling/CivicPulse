@@ -5,6 +5,7 @@ import { Menu, ShieldCheck, Globe } from "lucide-react";
 import { BrandLogo } from "@/components/common/BrandLogo";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
+import { ThemeToggle } from "@/components/theme/ThemeToggle";
 import { AdminProfileMenu } from "./AdminProfileMenu";
 import type { AdminUserSummary } from "@/types/domain";
 
@@ -62,6 +63,8 @@ export function AdminTopbar({ user, onOpenMobileNav }: AdminTopbarProps) {
             <Globe className="size-3.5" aria-hidden="true" />
             <span>Public Site</span>
           </Link>
+
+          <ThemeToggle variant="ghost" size="sm" />
 
           <AdminProfileMenu user={user} />
         </div>
