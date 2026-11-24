@@ -38,6 +38,9 @@ export function DashboardWelcome({
               )}
             </div>
 
+            <p className="text-xs font-semibold text-primary uppercase tracking-wider">
+              How can we help your community today?
+            </p>
             <h1 className="text-2xl sm:text-3xl font-bold tracking-tight text-foreground">
               Welcome back, {firstName}!
             </h1>
@@ -49,10 +52,10 @@ export function DashboardWelcome({
           <div className="flex flex-wrap items-center gap-3 shrink-0">
             <Link
               href="/report"
-              className={cn(buttonVariants({ variant: "default", size: "default" }), "gap-2 shadow-sm")}
+              className={cn(buttonVariants({ variant: "default", size: "default" }), "gap-2 shadow-sm font-semibold h-11 px-5")}
             >
               <PlusCircle className="size-4" aria-hidden="true" />
-              <span>Report an Issue</span>
+              <span>Report a New Issue</span>
             </Link>
             <Link
               href="/map"

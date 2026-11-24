@@ -8,6 +8,7 @@ import { ArrowUpRight, Menu, X } from "lucide-react";
 import { BrandLogo } from "@/components/common/BrandLogo";
 import { Button, buttonVariants } from "@/components/ui/button";
 import { LogoutButton } from "@/components/auth/LogoutButton";
+import { EasyReadingToggle } from "@/components/common/EasyReadingToggle";
 import { publicDestinations, publicLinks } from "@/lib/constants/public-navigation";
 import { createClient, isSupabaseConfigured } from "@/lib/supabase/client";
 import { cn } from "@/lib/utils";
@@ -25,7 +26,6 @@ export function Navbar() {
   useEffect(() => {
     const targets = publicLinks.map(({ href }) => document.getElementById(href.slice(2)));
     function readSection() {
-      // Home contains every section, so consider its more specific targets first.
       const line = (header.current?.offsetHeight ?? 72) + 24;
       const current = targets.slice(1).find((target) => {
         if (!target) return false;
@@ -128,19 +128,29 @@ export function Navbar() {
   function navigationLinks() {
     return publicLinks.map(({ label, href }) => {
       const current = href === "/" + active;
-      return <PublicLink key={label} href={href} onClick={() => navigate(href)}
-        aria-current={current ? "location" : undefined} className="public-nav-link">{label}</PublicLink>;
+      return (
+        <PublicLink
+          key={label}
+          href={href}
+          onClick={() => navigate(href)}
+          aria-current={current ? "location" : undefined}
+          className="public-nav-link text-sm font-medium transition-colors hover:text-primary"
+        >
+          {label}
+        </PublicLink>
+      );
     });
   }
 
   const actions = user ? (
     <>
-      <span className="text-xs font-medium text-muted-foreground hidden xl:inline">
+      <EasyReadingToggle variant="ghost" size="sm" className="hidden sm:inline-flex" />
+      <span className="text-xs font-semibold text-muted-foreground hidden xl:inline max-w-[120px] truncate">
         {displayName}
       </span>
       <PublicLink
         href={(userRole === "admin" ? "/admin" : "/dashboard") as Route}
-        className={cn(buttonVariants({ variant: "outline", size: "sm" }))}
+        className={cn(buttonVariants({ variant: "outline", size: "sm" }), "text-xs font-medium")}
       >
         {userRole === "admin" ? "Admin Portal" : "Dashboard"}
       </PublicLink>
@@ -148,44 +158,79 @@ export function Navbar() {
       <PublicLink
         href={publicDestinations.report}
         onClick={() => navigate(publicDestinations.report)}
-        className={buttonVariants({ variant: "primary", size: "sm" })}
+        className={cn(
+          buttonVariants({ variant: "primary", size: "sm" }),
+          "gap-1.5 font-semibold shadow-xs hover:shadow-sm"
+        )}
       >
-        Report an Issue <ArrowUpRight aria-hidden="true" />
+        <span>Report an Issue</span>
+        <ArrowUpRight className="size-3.5" aria-hidden="true" />
       </PublicLink>
     </>
   ) : (
     <>
+      <EasyReadingToggle variant="ghost" size="sm" className="hidden sm:inline-flex" />
       <PublicLink
         href={publicDestinations.signIn}
         onClick={() => navigate(publicDestinations.signIn)}
-        className={cn(buttonVariants({ variant: "ghost" }), "text-foreground")}
+        className={cn(buttonVariants({ variant: "ghost" }), "text-sm font-medium text-foreground")}
       >
         Sign In
       </PublicLink>
       <PublicLink
         href={publicDestinations.report}
         onClick={() => navigate(publicDestinations.report)}
-        className={buttonVariants({ variant: "primary" })}
+        className={cn(
+          buttonVariants({ variant: "primary" }),
+          "gap-1.5 font-semibold shadow-xs hover:shadow-sm"
+        )}
       >
-        Report an Issue <ArrowUpRight aria-hidden="true" />
+        <span>Report an Issue</span>
+        <ArrowUpRight className="size-4" aria-hidden="true" />
       </PublicLink>
     </>
   );
 
   return (
-    <header ref={header} className="public-header" onBlur={(event) => {
-      if (!event.currentTarget.contains(event.relatedTarget)) setOpen(false);
-    }}>
-      <a href="#home" className="skip-link">Skip to content</a>
+    <header
+      ref={header}
+      className="public-header sticky top-0 z-40 backdrop-blur-md bg-card/95 border-b border-border shadow-2xs transition-all duration-200"
+      onBlur={(event) => {
+        if (!event.currentTarget.contains(event.relatedTarget)) setOpen(false);
+      }}
+    >
       <div className="content-container flex min-h-18 items-center justify-between gap-3">
-        <PublicLink href={publicDestinations.home} onClick={() => navigate(publicDestinations.home)} aria-label="CivicPulse home"><BrandLogo /></PublicLink>
-        <nav aria-label="Main navigation" className="hidden items-center gap-4 lg:flex xl:gap-7">{navigationLinks()}</nav>
+        <PublicLink
+          href={publicDestinations.home}
+          onClick={() => navigate(publicDestinations.home)}
+          aria-label="CivicPulse home"
+          className="focus-visible:ring-2 focus-visible:ring-primary rounded-md"
+        >
+          <BrandLogo />
+        </PublicLink>
+
+        <nav aria-label="Main navigation" className="hidden items-center gap-4 lg:flex xl:gap-7">
+          {navigationLinks()}
+        </nav>
+
         <div className="hidden items-center gap-2 lg:flex">{actions}</div>
-        <Button ref={trigger} size="icon" variant="outline" className="lg:hidden" aria-controls="mobile-navigation"
-          aria-label={open ? "Close menu" : "Open menu"} aria-expanded={open} onClick={() => setOpen(!open)}>
-          {open ? <X aria-hidden="true" /> : <Menu aria-hidden="true" />}
-        </Button>
+
+        <div className="flex items-center gap-2 lg:hidden">
+          <EasyReadingToggle variant="ghost" size="sm" />
+          <Button
+            ref={trigger}
+            size="icon"
+            variant="outline"
+            aria-controls="mobile-navigation"
+            aria-label={open ? "Close menu" : "Open menu"}
+            aria-expanded={open}
+            onClick={() => setOpen(!open)}
+          >
+            {open ? <X className="size-5" aria-hidden="true" /> : <Menu className="size-5" aria-hidden="true" />}
+          </Button>
+        </div>
       </div>
+
       <MobileMenu open={open} actions={actions}>
         {navigationLinks()}
       </MobileMenu>

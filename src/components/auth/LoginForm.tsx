@@ -7,7 +7,7 @@ import { useRouter, useSearchParams } from "next/navigation";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { toast } from "sonner";
-import { ArrowRight, Info } from "lucide-react";
+import { ArrowRight, Info, FileText } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { PasswordInput } from "@/components/auth/PasswordInput";
@@ -163,6 +163,15 @@ export function LoginForm() {
             <p className="font-semibold text-blue-950">Authentication Notice</p>
             <p className="mt-0.5">{feedback}</p>
           </div>
+        </div>
+      )}
+
+      {searchParams.get("next")?.includes("/report") && (
+        <div className="flex items-center gap-2.5 rounded-lg border border-primary/25 bg-primary/5 p-3.5 text-xs text-primary leading-snug">
+          <FileText className="size-4 shrink-0 text-primary" aria-hidden="true" />
+          <span>
+            Sign in to submit your report and track its progress in real-time.
+          </span>
         </div>
       )}
 

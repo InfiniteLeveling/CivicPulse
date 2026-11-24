@@ -39,7 +39,7 @@ export function ReportFormProgress({
     if (photoStatus === "uploading") {
       return { label: "Uploading", variant: "secondary" };
     }
-    return { label: "Phases 8 & 9", variant: "outline" };
+    return { label: "Required", variant: "outline" };
   }
 
   function getLocationBadge(): { label: string; variant: "default" | "secondary" | "outline" } {
@@ -49,7 +49,7 @@ export function ReportFormProgress({
     if (locationStatus === "selected") {
       return { label: "Selected", variant: "secondary" };
     }
-    return { label: "Phase 10", variant: "outline" };
+    return { label: "Required", variant: "outline" };
   }
 
   const photoBadge = getPhotoBadge();
@@ -122,35 +122,21 @@ export function ReportFormProgress({
                       ? "bg-primary text-primary-foreground"
                       : "bg-muted text-muted-foreground"
                   )}
-                  aria-hidden="true"
                 >
                   {item.step}
                 </span>
 
                 <Badge
                   variant={item.badgeVariant}
-                  className={cn(
-                    "text-[10px] px-1.5 py-0 font-normal",
-                    item.badgeVariant === "default"
-                      ? "bg-primary text-primary-foreground border-transparent"
-                      : "text-muted-foreground border-border"
-                  )}
+                  className="text-[10px] font-medium px-1.5 py-0 h-4"
                 >
                   {item.badge}
                 </Badge>
               </div>
 
-              <div className="flex items-center gap-2 min-w-0">
-                <Icon
-                  className={cn(
-                    "size-4 shrink-0",
-                    item.isActive ? "text-primary" : "text-muted-foreground/70"
-                  )}
-                  aria-hidden="true"
-                />
-                <span className={cn("text-xs font-medium truncate", item.isActive && "text-foreground font-semibold")}>
-                  {item.title}
-                </span>
+              <div className="flex items-center gap-1.5 text-xs font-semibold">
+                <Icon className="size-3.5 shrink-0 text-primary" aria-hidden="true" />
+                <span className="truncate">{item.title}</span>
               </div>
             </li>
           );

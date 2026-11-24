@@ -34,7 +34,11 @@ import { DuplicateCheckPanel } from "./DuplicateCheckPanel";
 import { FinalReportReview } from "./FinalReportReview";
 import { ReportSuccess } from "./ReportSuccess";
 
-export function ReportForm() {
+interface ReportFormProps {
+  initialCategory?: string;
+}
+
+export function ReportForm({ initialCategory }: ReportFormProps = {}) {
   const [viewState, setViewState] = useState<"edit" | "review">("edit");
   const [validatedData, setValidatedData] = useState<ReportBasicsFormValues | null>(null);
 
@@ -76,7 +80,7 @@ export function ReportForm() {
     defaultValues: {
       title: "",
       description: "",
-      category: undefined,
+      category: (initialCategory as ReportBasicsFormValues["category"]) || undefined,
       visibility: "public",
     },
   });

@@ -1,3 +1,4 @@
+import Link from "next/link";
 import { Construction, Trash2, Droplets, Lightbulb, Waves, TriangleAlert, type LucideIcon } from "lucide-react";
 import { CATEGORY_LABELS } from "@/lib/constants";
 import type { IssueCategory } from "@/types/domain";
@@ -19,11 +20,20 @@ export function IssueCategories() {
         {(Object.keys(CATEGORY_LABELS) as IssueCategory[]).map((category) => {
           const detail = details[category];
           const Icon = detail.icon;
-          return <li key={category} className="category-card">
-            <span className="category-icon" data-tone={detail.tone}><Icon aria-hidden="true" /></span>
-            <h3>{("plural" in detail && detail.plural) || CATEGORY_LABELS[category]}</h3>
-            <p>{detail.description}</p>
-          </li>;
+          return (
+            <li key={category} className="category-card">
+              <Link
+                href={`/report?category=${category}`}
+                className="flex flex-col h-full focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary rounded-lg"
+              >
+                <span className="category-icon" data-tone={detail.tone}>
+                  <Icon aria-hidden="true" />
+                </span>
+                <h3>{("plural" in detail && detail.plural) || CATEGORY_LABELS[category]}</h3>
+                <p>{detail.description}</p>
+              </Link>
+            </li>
+          );
         })}
       </ul>
     </section>

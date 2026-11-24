@@ -13,15 +13,19 @@ const inter = localFont({
 
 export const metadata: Metadata = {
   title: `${APP_NAME} | Intelligent Civic Problem Resolution`,
-  description: "Report civic issues, track progress and help build better communities through intelligent civic issue management.",
+  description:
+    "Report civic issues, track progress and help build better communities through intelligent civic issue management.",
 };
 
 export default function RootLayout({ children }: Readonly<{ children: React.ReactNode }>) {
   return (
     <html lang="en" className={inter.variable}>
       <body>
+        <a href="#main-content" className="skip-to-content">
+          Skip to main content
+        </a>
         {children}
-        <Toaster />
+        <Toaster position="top-right" richColors closeButton />
       </body>
     </html>
   );

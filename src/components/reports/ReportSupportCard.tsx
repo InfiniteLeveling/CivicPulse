@@ -92,16 +92,16 @@ export function ReportSupportCard({
               type="button"
               variant="outline"
               disabled
-              className="w-full text-xs h-9 gap-1.5 opacity-80 cursor-not-allowed bg-emerald-500/5 text-emerald-700 border-emerald-500/30"
+              className="w-full text-xs h-9 gap-1.5 opacity-90 cursor-not-allowed bg-emerald-500/10 text-emerald-700 dark:text-emerald-300 border-emerald-500/30"
             >
-              <CheckCircle2 className="size-3.5" aria-hidden="true" />
+              <CheckCircle2 className="size-3.5 text-emerald-600" aria-hidden="true" />
               <span>Supported</span>
             </Button>
           </div>
         ) : !isAuthenticated ? (
           <div className="space-y-2">
             <p className="text-xs text-muted-foreground leading-relaxed">
-              Sign in with your verified citizen account to support this civic report.
+              Support this report if the same issue affects you in your neighborhood.
             </p>
             <Link
               href={`/login?next=/reports/${encodeURIComponent(report.id)}`}
@@ -122,7 +122,7 @@ export function ReportSupportCard({
               size="default"
               disabled={isSubmitting}
               onClick={handleSupportClick}
-              className="w-full text-xs h-9 gap-2 shadow-xs font-medium"
+              className="w-full text-xs h-9 gap-2 shadow-xs font-semibold"
               data-testid="support-issue-btn"
             >
               {isSubmitting ? (
@@ -138,7 +138,7 @@ export function ReportSupportCard({
               )}
             </Button>
             <p className="text-[11px] text-muted-foreground text-center">
-              Each citizen may endorse this report once.
+              I face this problem too — support this report to help prioritize repairs. Each citizen may endorse once.
             </p>
           </div>
         )}

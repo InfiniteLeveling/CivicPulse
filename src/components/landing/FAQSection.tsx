@@ -1,25 +1,78 @@
-import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from "@/components/ui/accordion";
+import {
+  Accordion,
+  AccordionContent,
+  AccordionItem,
+  AccordionTrigger,
+} from "@/components/ui/accordion";
+import { HelpCircle } from "lucide-react";
 
-const questions = [
-  ["Who can use CivicPulse?", "CivicPulse is designed for residents, students and local communities, alongside the teams responsible for shared infrastructure. Anyone can explore the public prototype."],
-  ["How will I report and track an issue?", "The planned reporting flow lets a signed-in resident add a description, photo and confirmed location. A case reference will link to status updates and repair evidence."],
-  ["What if the AI gets the category wrong?", "AI suggestions are optional. The planned form lets you correct the category and description or enter them yourself. Staff can review the suggested severity."],
-  ["How will duplicate detection work?", "Nearby, unresolved reports in a similar category are candidates for review. A resident can support an existing report or explain why the new issue is separate."],
-  ["Is CivicPulse connected to government authorities?", "This prototype uses a simulated authority. A live connection to a municipality or maintenance department would require an agreement with that organization."],
-  ["What happens to my photos?", "This preview accepts no uploads. For future reporting, choose photos of the issue itself and keep faces, license plates and private details out of the frame. The planned AI analysis requires your consent."],
-  ["Can I use CivicPulse in an emergency?", "CivicPulse is for routine maintenance. For an immediate threat to life or safety, contact local emergency services directly."],
+const faqs = [
+  {
+    q: "How do I report a problem?",
+    a: "Click 'Report an Issue' anywhere on the platform. Select an issue category, describe what you observed, attach a photograph, and confirm the location on the map. You can review your details and submit in less than two minutes.",
+  },
+  {
+    q: "Do I need an account to report an issue?",
+    a: "Yes. An authenticated citizen account ensures that your report has a verified owner, prevents fraudulent spam, and allows you to track real-time resolution progress and community updates on your dashboard.",
+  },
+  {
+    q: "What types of problems can I report on CivicPulse?",
+    a: "CivicPulse supports 6 major infrastructure categories: Potholes and damaged roads, Garbage accumulation and overflowing bins, Water supply leaks and broken pipes, Non-functioning streetlights, Blocked drainage and waterlogging, and Other shared public hazards.",
+  },
+  {
+    q: "What if someone has already reported the same issue?",
+    a: "During the reporting flow, CivicPulse automatically scans for nearby reports in the same category. If a matching complaint already exists, you can click 'I face this problem too' to back it. Supporting an existing report increases its priority without creating duplicate work orders.",
+  },
+  {
+    q: "How do I track my complaint after submitting?",
+    a: "Every submission receives a unique tracking reference (e.g., REP-2026-001). You can view your reports anytime under 'My Reports' or by visiting the complaint's direct link to view status transitions and photographic resolution proof.",
+  },
+  {
+    q: "What if my current GPS location is slightly off?",
+    a: "You can drag the map pin or click anywhere on the interactive map to adjust the position before submitting. We recommend placing the pin directly where the hazard is located, even if you are submitting from across the street.",
+  },
+  {
+    q: "What is a private report vs a public report?",
+    a: "Public reports appear on the Live Civic Map and allow neighborhood residents to support them. If you prefer your complaint not to be displayed on the public map, you can select 'Private' during step 1.",
+  },
+  {
+    q: "Can I use CivicPulse in an emergency?",
+    a: "No. CivicPulse is designed for non-emergency public infrastructure maintenance. In cases of immediate danger to life, criminal activity, gas leaks, or medical emergencies, please call local emergency services immediately.",
+  },
+  {
+    q: "Does CivicPulse guarantee immediate resolution?",
+    a: "CivicPulse streamlines civic intake, triage, and transparent departmental tracking. Actual resolution time depends on municipal resource allocation, severity, and field crew scheduling. CivicPulse holds municipal operations accountable through public tracking and photographic resolution evidence.",
+  },
 ];
 
 export function FAQSection() {
   return (
-    <section className="border-t bg-background" aria-labelledby="faq-title">
-      <div className="content-container section-space grid items-start gap-5 lg:grid-cols-[1fr_1.7fr] lg:gap-12">
-        <h2 id="faq-title">Frequently asked questions</h2>
-        <Accordion className="rounded-xl border bg-card px-4 sm:px-6">
-          {questions.map(([question, answer]) => <AccordionItem key={question} value={question}>
-            <AccordionTrigger className="min-h-12 items-center py-4 text-base">{question}</AccordionTrigger>
-            <AccordionContent className="max-w-prose text-muted-foreground">{answer}</AccordionContent>
-          </AccordionItem>)}
+    <section className="border-t border-border bg-muted/20 py-16 sm:py-24" aria-labelledby="faq-title">
+      <div className="content-container grid items-start gap-8 lg:grid-cols-[1fr_1.8fr] lg:gap-14">
+        <div className="space-y-4">
+          <div className="inline-flex items-center gap-2 text-xs font-semibold uppercase tracking-wider text-primary">
+            <HelpCircle className="size-4" aria-hidden="true" />
+            <span>Common Questions</span>
+          </div>
+          <h2 id="faq-title" className="text-2xl sm:text-3xl font-bold tracking-tight text-foreground">
+            Frequently asked questions
+          </h2>
+          <p className="text-sm sm:text-base text-muted-foreground leading-relaxed">
+            Everything you need to know about reporting civic issues, tracking repairs, and community support on CivicPulse.
+          </p>
+        </div>
+
+        <Accordion className="rounded-xl border border-border bg-card px-4 sm:px-6 divide-y divide-border/60 shadow-2xs">
+          {faqs.map(({ q, a }) => (
+            <AccordionItem key={q} value={q} className="border-none py-1">
+              <AccordionTrigger className="text-left py-4 text-sm sm:text-base font-semibold text-foreground hover:text-primary transition-colors">
+                {q}
+              </AccordionTrigger>
+              <AccordionContent className="text-xs sm:text-sm text-muted-foreground leading-relaxed pb-4">
+                {a}
+              </AccordionContent>
+            </AccordionItem>
+          ))}
         </Accordion>
       </div>
     </section>
