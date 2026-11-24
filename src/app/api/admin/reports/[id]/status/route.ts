@@ -32,6 +32,9 @@ export async function PATCH(
     }
 
     const { status, remark, resolutionImageId, version } = body;
+    if (!status) {
+      throw new AppError("VALIDATION_ERROR", "Status is required");
+    }
 
     const afterImagePath = resolutionImageId?.startsWith("resolution-drafts/")
       ? resolutionImageId

@@ -34,7 +34,7 @@ export function AdminSidebar({ user, className }: AdminSidebarProps) {
           href="/admin"
           className="flex items-center gap-2.5 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary rounded-md"
         >
-          <BrandLogo />
+          <BrandLogo inverse />
         </Link>
         <Badge
           variant="outline"

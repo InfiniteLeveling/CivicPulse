@@ -10,6 +10,8 @@ import { Button, buttonVariants } from "@/components/ui/button";
 import { LogoutButton } from "@/components/auth/LogoutButton";
 import { publicDestinations, publicLinks } from "@/lib/constants/public-navigation";
 import { createClient, isSupabaseConfigured } from "@/lib/supabase/client";
+import { ReadingModeToggle } from "@/components/common/ReadingModeToggle";
+import { ThemeToggle } from "@/components/theme/ThemeToggle";
 import { cn } from "@/lib/utils";
 import type { UserRole } from "@/types/domain";
 
@@ -135,6 +137,8 @@ export function Navbar() {
 
   const actions = user ? (
     <>
+      <ThemeToggle variant="ghost" />
+      <ReadingModeToggle variant="ghost" />
       <span className="text-xs font-medium text-muted-foreground hidden xl:inline">
         {displayName}
       </span>
@@ -148,24 +152,26 @@ export function Navbar() {
       <PublicLink
         href={publicDestinations.report}
         onClick={() => navigate(publicDestinations.report)}
-        className={buttonVariants({ variant: "primary", size: "sm" })}
+        className={cn(buttonVariants({ variant: "primary", size: "sm" }), "font-semibold shadow-xs")}
       >
         Report an Issue <ArrowUpRight aria-hidden="true" />
       </PublicLink>
     </>
   ) : (
     <>
+      <ThemeToggle variant="ghost" />
+      <ReadingModeToggle variant="ghost" />
       <PublicLink
         href={publicDestinations.signIn}
         onClick={() => navigate(publicDestinations.signIn)}
-        className={cn(buttonVariants({ variant: "ghost" }), "text-foreground")}
+        className={cn(buttonVariants({ variant: "ghost" }), "text-foreground font-medium")}
       >
         Sign In
       </PublicLink>
       <PublicLink
         href={publicDestinations.report}
         onClick={() => navigate(publicDestinations.report)}
-        className={buttonVariants({ variant: "primary" })}
+        className={cn(buttonVariants({ variant: "primary" }), "font-semibold shadow-xs")}
       >
         Report an Issue <ArrowUpRight aria-hidden="true" />
       </PublicLink>

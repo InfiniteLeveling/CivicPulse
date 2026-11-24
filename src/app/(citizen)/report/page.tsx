@@ -11,7 +11,11 @@ export const metadata: Metadata = {
     "Report community infrastructure problems such as potholes, garbage accumulation, or broken streetlights for municipal resolution.",
 };
 
-export default async function ReportIssuePage() {
+interface ReportIssuePageProps {
+  searchParams?: Promise<{ category?: string }>;
+}
+
+export default async function ReportIssuePage(props: ReportIssuePageProps) {
   if (isSupabaseConfigured()) {
     const auth = await getVerifiedUser();
     if (!auth) {
@@ -19,10 +23,13 @@ export default async function ReportIssuePage() {
     }
   }
 
+  const searchParams = props.searchParams ? await props.searchParams : undefined;
+  const initialCategory = searchParams?.category;
+
   return (
     <div className="max-w-4xl mx-auto space-y-8 animate-in fade-in-50 duration-200">
       <ReportFormHeader />
-      <ReportForm />
+      <ReportForm initialCategory={initialCategory} />
     </div>
   );
 }

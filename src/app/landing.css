@@ -93,3 +93,24 @@
 .preview-link { @apply inline-flex min-h-11 items-center gap-1 rounded-md px-2 text-sm font-semibold text-primary-hover hover:bg-primary-light; }
 .public-footer nav a { @apply inline-flex min-h-9 items-center text-sm text-slate-300 hover:text-white hover:underline; }
 .public-footer a:focus-visible, .public-page section.bg-primary-hover a:focus-visible { outline-color: white; }
+
+/* Dark mode overrides for landing visuals */
+.dark .map-preview {
+  box-shadow: 0 16px 36px -12px rgb(0 0 0 / 70%);
+}
+.dark .demo-stamp {
+  background: var(--foreground);
+  color: var(--background);
+}
+.dark .map-arrow {
+  background: var(--card);
+  border-color: var(--border);
+  color: var(--foreground);
+}
+.dark .map-arrow:hover {
+  background: var(--primary-light);
+  color: var(--primary-hover);
+}
+.dark .category-card, .dark .feature-card {
+  box-shadow: 0 1px 3px 0 rgb(0 0 0 / 0.3);
+}

@@ -19,6 +19,7 @@ import type {
 } from "@/types/domain";
 import {
   reportBasicsSchema,
+  ISSUE_CATEGORIES,
   type ReportBasicsFormValues,
 } from "@/lib/validation/report";
 import { createReport } from "@/lib/api/reports";
@@ -34,7 +35,11 @@ import { DuplicateCheckPanel } from "./DuplicateCheckPanel";
 import { FinalReportReview } from "./FinalReportReview";
 import { ReportSuccess } from "./ReportSuccess";
 
-export function ReportForm() {
+interface ReportFormProps {
+  initialCategory?: string;
+}
+
+export function ReportForm({ initialCategory }: ReportFormProps = {}) {
   const [viewState, setViewState] = useState<"edit" | "review">("edit");
   const [validatedData, setValidatedData] = useState<ReportBasicsFormValues | null>(null);
 
@@ -64,6 +69,11 @@ export function ReportForm() {
     code?: string;
   } | null>(null);
 
+  const validInitialCategory =
+    initialCategory && ISSUE_CATEGORIES.includes(initialCategory as (typeof ISSUE_CATEGORIES)[number])
+      ? (initialCategory as (typeof ISSUE_CATEGORIES)[number])
+      : undefined;
+
   const {
     register,
     handleSubmit,
@@ -76,7 +86,7 @@ export function ReportForm() {
     defaultValues: {
       title: "",
       description: "",
-      category: undefined,
+      category: validInitialCategory,
       visibility: "public",
     },
   });

@@ -5,6 +5,8 @@ import { PlusCircle } from "lucide-react";
 import { buttonVariants } from "@/components/ui/button";
 import { CitizenProfileMenu, type CitizenUserSummary } from "./CitizenProfileMenu";
 import { BrandLogo } from "@/components/common/BrandLogo";
+import { ReadingModeToggle } from "@/components/common/ReadingModeToggle";
+import { ThemeToggle } from "@/components/theme/ThemeToggle";
 import { cn } from "@/lib/utils";
 
 interface CitizenTopbarProps {
@@ -35,6 +37,9 @@ export function CitizenTopbar({ user }: CitizenTopbarProps) {
 
         {/* Right side: quick action, profile menu */}
         <div className="flex items-center gap-2 sm:gap-3">
+          <ThemeToggle variant="ghost" />
+          <ReadingModeToggle variant="ghost" />
+
           <Link
             href="/report"
             className={cn(buttonVariants({ variant: "default", size: "sm" }), "gap-1.5 font-medium shadow-sm")}

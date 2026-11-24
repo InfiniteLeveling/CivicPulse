@@ -1,4 +1,5 @@
 import type { Metadata } from "next";
+import { Suspense } from "react";
 import { AuthLayout } from "@/components/auth/AuthLayout";
 import { RegisterForm } from "@/components/auth/RegisterForm";
 import { APP_NAME } from "@/lib/constants";
@@ -15,7 +16,9 @@ export default function RegisterPage() {
       heading="Join CivicPulse"
       subheading="Create your account and help make your community cleaner, safer and better."
     >
-      <RegisterForm />
+      <Suspense fallback={<div className="h-72 animate-pulse rounded-lg bg-muted/40" />}>
+        <RegisterForm />
+      </Suspense>
     </AuthLayout>
   );
 }

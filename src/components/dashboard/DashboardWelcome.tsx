@@ -31,26 +31,26 @@ export function DashboardWelcome({
             </div>
 
             <h1 className="text-2xl sm:text-3xl font-bold tracking-tight text-foreground">
-              Welcome back, {firstName}!
+              How can we help your community today, {firstName}?
             </h1>
             <p className="text-sm sm:text-base text-muted-foreground leading-relaxed">
-              Track infrastructure reports in real time, monitor municipal resolution progress, and help keep our city clean and safe.
+              Report neighborhood infrastructure problems, track real-time resolution progress, and help keep our community clean and safe.
             </p>
           </div>
 
           <div className="flex flex-wrap items-center gap-3 shrink-0">
             <Link
               href="/report"
-              className={cn(buttonVariants({ variant: "default", size: "default" }), "gap-2 shadow-sm")}
+              className={cn(buttonVariants({ variant: "default", size: "lg" }), "gap-2 shadow-sm font-semibold")}
             >
-              <PlusCircle className="size-4" aria-hidden="true" />
+              <PlusCircle className="size-5" aria-hidden="true" />
               <span>Report an Issue</span>
             </Link>
             <Link
               href="/map"
-              className={cn(buttonVariants({ variant: "outline", size: "default" }), "gap-2")}
+              className={cn(buttonVariants({ variant: "outline", size: "lg" }), "gap-2")}
             >
-              <MapPin className="size-4" aria-hidden="true" />
+              <MapPin className="size-5" aria-hidden="true" />
               <span>Explore Map</span>
             </Link>
           </div>

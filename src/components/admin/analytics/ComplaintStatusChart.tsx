@@ -75,10 +75,14 @@ export function ComplaintStatusChart({ data, total }: ComplaintStatusChartProps)
                     String(name ?? ""),
                   ]}
                   contentStyle={{
-                    backgroundColor: "var(--card)",
+                    backgroundColor: "var(--popover)",
                     borderColor: "var(--border)",
+                    color: "var(--foreground)",
                     borderRadius: "0.5rem",
                     fontSize: "12px",
+                  }}
+                  itemStyle={{
+                    color: "var(--foreground)",
                   }}
                 />
                 <Legend

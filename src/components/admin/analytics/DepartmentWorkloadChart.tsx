@@ -55,7 +55,7 @@ export function DepartmentWorkloadChart({ data }: DepartmentWorkloadChartProps) 
                 data={data}
                 margin={{ top: 15, right: 20, left: 0, bottom: 25 }}
               >
-                <CartesianGrid strokeDasharray="3 3" vertical={false} opacity={0.3} />
+                <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="var(--border)" opacity={0.6} />
                 <XAxis
                   dataKey="departmentName"
                   fontSize={10}
@@ -63,18 +63,23 @@ export function DepartmentWorkloadChart({ data }: DepartmentWorkloadChartProps) 
                   interval={0}
                   angle={-15}
                   textAnchor="end"
+                  stroke="var(--muted-foreground)"
                 />
-                <YAxis allowDecimals={false} fontSize={11} tickLine={false} />
+                <YAxis allowDecimals={false} fontSize={11} tickLine={false} stroke="var(--muted-foreground)" />
                 <Tooltip
                   formatter={(value: React.ReactNode, name: string | number | undefined) => [
                     `${String(value ?? 0)} complaints`,
                     String(name ?? ""),
                   ]}
                   contentStyle={{
-                    backgroundColor: "var(--card)",
+                    backgroundColor: "var(--popover)",
                     borderColor: "var(--border)",
+                    color: "var(--foreground)",
                     borderRadius: "0.5rem",
                     fontSize: "12px",
+                  }}
+                  itemStyle={{
+                    color: "var(--foreground)",
                   }}
                 />
                 <Legend

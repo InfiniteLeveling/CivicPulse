@@ -63,27 +63,31 @@ export function ComplaintTrendChart({ data }: ComplaintTrendChartProps) {
                 data={data}
                 margin={{ top: 15, right: 25, left: 0, bottom: 5 }}
               >
-                <CartesianGrid strokeDasharray="3 3" vertical={false} opacity={0.3} />
-                <XAxis dataKey="label" fontSize={11} tickLine={false} />
-                <YAxis allowDecimals={false} fontSize={11} tickLine={false} />
+                <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="var(--border)" opacity={0.6} />
+                <XAxis dataKey="label" fontSize={11} tickLine={false} stroke="var(--muted-foreground)" />
+                <YAxis allowDecimals={false} fontSize={11} tickLine={false} stroke="var(--muted-foreground)" />
                 <Tooltip
                   formatter={(value: React.ReactNode) => [
                     `${String(value ?? 0)} complaints submitted`,
                     "Daily Volume",
                   ]}
                   contentStyle={{
-                    backgroundColor: "var(--card)",
+                    backgroundColor: "var(--popover)",
                     borderColor: "var(--border)",
+                    color: "var(--foreground)",
                     borderRadius: "0.5rem",
                     fontSize: "12px",
+                  }}
+                  itemStyle={{
+                    color: "var(--foreground)",
                   }}
                 />
                 <Line
                   type="monotone"
                   dataKey="count"
-                  stroke="#2563EB"
+                  stroke="var(--primary)"
                   strokeWidth={2.5}
-                  dot={{ r: 4, fill: "#2563EB", strokeWidth: 1.5, stroke: "#ffffff" }}
+                  dot={{ r: 4, fill: "var(--primary)", strokeWidth: 1.5, stroke: "var(--card)" }}
                   activeDot={{ r: 6 }}
                 />
               </LineChart>

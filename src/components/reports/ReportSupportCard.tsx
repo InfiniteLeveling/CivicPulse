@@ -133,12 +133,12 @@ export function ReportSupportCard({
               ) : (
                 <>
                   <ThumbsUp className="size-3.5" aria-hidden="true" />
-                  <span>Support This Issue</span>
+                  <span>I Face This Problem Too</span>
                 </>
               )}
             </Button>
             <p className="text-[11px] text-muted-foreground text-center">
-              Each citizen may endorse this report once.
+              Support this report if the same issue affects you.
             </p>
           </div>
         )}

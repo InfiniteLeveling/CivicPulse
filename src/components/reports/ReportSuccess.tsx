@@ -50,9 +50,9 @@ export function ReportSuccess({
   return (
     <div className="space-y-6 animate-in fade-in-50 duration-300" data-testid="report-success-view">
       {/* Celebration Header */}
-      <Card className="border-emerald-500/40 bg-emerald-500/5 dark:bg-emerald-950/10">
+      <Card className="border-emerald-500/40 bg-emerald-500/5 dark:bg-emerald-950/10 animate-fade-in">
         <CardContent className="p-6 sm:p-8 flex flex-col sm:flex-row items-center sm:items-start text-center sm:text-left gap-5">
-          <span className="flex size-14 shrink-0 items-center justify-center rounded-2xl bg-emerald-600 text-white shadow-sm">
+          <span className="flex size-14 shrink-0 items-center justify-center rounded-2xl bg-emerald-600 text-white shadow-sm animate-scale-in">
             <CheckCircle2 className="size-8" aria-hidden="true" />
           </span>
 
@@ -67,11 +67,11 @@ export function ReportSuccess({
             </div>
 
             <h2 className="text-xl sm:text-2xl font-bold text-foreground tracking-tight">
-              Complaint Submitted Successfully!
+              Your Report Has Been Submitted!
             </h2>
 
             <p className="text-xs sm:text-sm text-muted-foreground leading-relaxed max-w-2xl">
-              Your civic issue report has been recorded in the municipal queue. You can monitor crew dispatch, status updates, and resolution verification directly from your citizen dashboard.
+              Thank you for taking a step toward improving your community. Your civic issue has been recorded in the municipal queue, and you can monitor real-time updates and resolution evidence directly from your dashboard.
             </p>
           </div>
         </CardContent>

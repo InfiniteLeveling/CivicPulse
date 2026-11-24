@@ -3,7 +3,7 @@
 import { useState } from "react";
 import Link from "next/link";
 import type { Route } from "next";
-import { useRouter } from "next/navigation";
+import { useRouter, useSearchParams } from "next/navigation";
 import { useForm, useWatch } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { toast } from "sonner";
@@ -15,11 +15,14 @@ import { PasswordStrength } from "@/components/auth/PasswordStrength";
 import { OAuthProviders } from "@/components/auth/OAuthProviders";
 import { registerSchema, type RegisterFormValues } from "@/lib/validation/auth";
 import { createClient, isSupabaseConfigured } from "@/lib/supabase/client";
+import { getSafeRedirectPath } from "@/lib/auth/redirects";
 
 export function RegisterForm() {
   const [submitting, setSubmitting] = useState(false);
   const [feedback, setFeedback] = useState<string | null>(null);
   const router = useRouter();
+  const searchParams = useSearchParams();
+  const nextParam = searchParams.get("next");
 
   const {
     register,
@@ -103,7 +106,10 @@ export function RegisterForm() {
         toast.success("Welcome to CivicPulse!", {
           description: "Account created successfully.",
         });
-        router.push("/dashboard" as Route);
+        const destination = nextParam
+          ? getSafeRedirectPath(nextParam, "/dashboard")
+          : "/dashboard";
+        router.push(destination as Route);
         router.refresh();
       }
     } catch (err: unknown) {
@@ -255,7 +261,7 @@ export function RegisterForm() {
       <div className="border-t border-border pt-4 text-center text-sm text-muted-foreground">
         Already have an account?{" "}
         <Link
-          href="/login"
+          href={nextParam ? (`/login?next=${encodeURIComponent(nextParam)}` as Route) : "/login"}
           className="font-medium text-primary hover:text-primary-hover hover:underline"
         >
           Sign In

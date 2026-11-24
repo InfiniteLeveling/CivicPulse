@@ -6,6 +6,7 @@ import { BrandLogo } from "@/components/common/BrandLogo";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { AdminProfileMenu } from "./AdminProfileMenu";
+import { ThemeToggle } from "@/components/theme/ThemeToggle";
 import type { AdminUserSummary } from "@/types/domain";
 
 interface AdminTopbarProps {
@@ -55,6 +56,7 @@ export function AdminTopbar({ user, onOpenMobileNav }: AdminTopbarProps) {
 
         {/* Right: Public Website shortcut & Admin Profile Menu */}
         <div className="flex items-center gap-2 sm:gap-3">
+          <ThemeToggle variant="ghost" />
           <Link
             href="/"
             className="hidden sm:inline-flex items-center gap-1.5 text-xs font-medium px-2.5 py-1.5 rounded-lg text-muted-foreground hover:text-foreground hover:bg-muted transition-colors"

@@ -64,7 +64,7 @@ export function AdminMobileNav({ open, onClose, user }: AdminMobileNavProps) {
         {/* Header */}
         <div className="h-16 px-4 flex items-center justify-between border-b border-slate-800">
           <Link href="/admin" onClick={onClose} className="flex items-center gap-2">
-            <BrandLogo />
+            <BrandLogo inverse />
             <Badge
               variant="outline"
               className="text-[10px] font-bold px-1.5 py-0.5 border-destructive/40 text-destructive bg-destructive/10 uppercase tracking-wider"

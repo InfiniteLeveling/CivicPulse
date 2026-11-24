@@ -56,12 +56,13 @@ export function ComplaintCategoryChart({ data }: ComplaintCategoryChartProps) {
                 data={data}
                 margin={{ top: 5, right: 30, left: 40, bottom: 5 }}
               >
-                <CartesianGrid strokeDasharray="3 3" horizontal={false} opacity={0.3} />
+                <CartesianGrid strokeDasharray="3 3" horizontal={false} stroke="var(--border)" opacity={0.6} />
                 <XAxis
                   type="number"
                   allowDecimals={false}
                   fontSize={11}
                   tickLine={false}
+                  stroke="var(--muted-foreground)"
                 />
                 <YAxis
                   type="category"
@@ -70,6 +71,7 @@ export function ComplaintCategoryChart({ data }: ComplaintCategoryChartProps) {
                   tickLine={false}
                   axisLine={false}
                   width={95}
+                  stroke="var(--muted-foreground)"
                 />
                 <Tooltip
                   formatter={(
@@ -81,15 +83,19 @@ export function ComplaintCategoryChart({ data }: ComplaintCategoryChartProps) {
                     "Count",
                   ]}
                   contentStyle={{
-                    backgroundColor: "var(--card)",
+                    backgroundColor: "var(--popover)",
                     borderColor: "var(--border)",
+                    color: "var(--foreground)",
                     borderRadius: "0.5rem",
                     fontSize: "12px",
+                  }}
+                  itemStyle={{
+                    color: "var(--foreground)",
                   }}
                 />
                 <Bar
                   dataKey="count"
-                  fill="#2563EB"
+                  fill="var(--primary)"
                   radius={[0, 4, 4, 0]}
                   maxBarSize={22}
                 />

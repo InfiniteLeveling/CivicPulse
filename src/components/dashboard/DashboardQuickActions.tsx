@@ -6,7 +6,7 @@ import { Badge } from "@/components/ui/badge";
 const quickActions = [
   {
     title: "Report an Issue",
-    description: "Submit a new infrastructure problem with AI-assisted categorization and photo verification.",
+    description: "Submit a new infrastructure problem with AI-assisted categorization, photo verification, and GPS pin.",
     href: "/report",
     icon: PlusCircle,
     badge: "Submit",
@@ -15,7 +15,7 @@ const quickActions = [
   },
   {
     title: "My Complaints",
-    description: "Review detailed status history, departmental responses, and timeline updates on all your reports.",
+    description: "Review detailed status history, departmental responses, and timeline updates on all your submitted reports.",
     href: "/my-reports",
     icon: ClipboardList,
     badge: "Track",
@@ -24,7 +24,7 @@ const quickActions = [
   },
   {
     title: "Explore Civic Map",
-    description: "View community complaints on an interactive neighborhood map and support existing issues.",
+    description: "View verified community complaints on an interactive neighborhood map and support existing issues.",
     href: "/map",
     icon: MapPin,
     badge: "Map",

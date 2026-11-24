@@ -49,7 +49,7 @@ export function ReportFormProgress({
     if (locationStatus === "selected") {
       return { label: "Selected", variant: "secondary" };
     }
-    return { label: "Map Pin", variant: "outline" };
+    return { label: "Map / GPS", variant: "outline" };
   }
 
   const photoBadge = getPhotoBadge();

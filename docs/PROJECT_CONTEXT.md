@@ -1,5 +1,132 @@
 # CivicPulse project handoff
 
+## Global Dark Mode, Dual-Theme Design System & Theme Animations
+
+**Complete on 2026-11-25.** CivicPulse has implemented a complete, premium, accessible Dark Mode and dual-theme design system across the entire application, seamlessly supporting Light, Dark, and System appearance preferences with zero hydration mismatches, no page reloads, and full form state preservation.
+
+### Key Dark Mode Accomplishments
+
+1. **Three Appearance Modes & System Sync**:
+   - **Light Mode**: High-readability public service daylight palette (`#F8FAFC` background, `#FFFFFF` cards, `#0F172A` text).
+   - **Dark Mode**: Sophisticated midnight-navy aesthetic avoiding harsh pure-black backgrounds (`#020617` background, `#0F172A` cards, `#1E293B` elevated surfaces, `#F8FAFC` text, `#94A3B8` muted text, `#334155` borders).
+   - **System Default**: Automatically synchronizes with OS preference via `window.matchMedia('(prefers-color-scheme: dark)')` with safe fallback to Light.
+
+2. **Hydration-Safe Theme Provider**:
+   - Implemented `src/components/theme/ThemeProvider.tsx` wrapping `next-themes` with `attribute="class"`, `defaultTheme="system"`, and `enableSystem`.
+   - Integrated into `src/app/layout.tsx` with `suppressHydrationWarning` on `<html>` to eliminate false-positive hydration warnings.
+   - Zero flash of unstyled content (FOUC): inline script executes synchronously before client painting.
+
+3. **Accessible Theme Toggle (`<ThemeToggle />`)**:
+   - Created `src/components/theme/ThemeToggle.tsx` featuring `Sun`, `Moon`, and `Monitor` Lucide icons.
+   - Dropdown menu with visible text labels ("Light", "Dark", "System Default") and descriptive subtitles for older adults and first-time users.
+   - Clear active state indicator (primary checkmark and highlighted background).
+   - Full keyboard accessibility: Escape to dismiss, focus return to trigger, visible focus rings, and touch target ≥ 44px.
+   - Built with React 19 `useMounted()` hook to prevent cascading renders and hydration mismatches.
+
+4. **Strategic Theme Toggle Placement**:
+   - **Public Website**: Desktop Navbar (`Navbar.tsx`) and Mobile Navigation Drawer (`MobileMenu.tsx`).
+   - **Citizen Portal**: Citizen Topbar (`CitizenTopbar.tsx`) alongside `ReadingModeToggle`.
+   - **Administrator Portal**: Admin Topbar (`AdminTopbar.tsx`) beside system shortcuts.
+   - **Public Footer**: Beside `ReadingModeToggle` in `Footer.tsx`.
+   - Shared global preference: changing appearance anywhere updates the entire platform instantly.
+
+5. **Semantic Design Tokens & Badges**:
+   - Extended `src/app/globals.css` with comprehensive `.dark` variable definitions:
+     - Background: `#020617`, Cards: `#0F172A`, Popovers: `#1E293B`, Borders: `#334155`, Inputs: `#475569`.
+     - Status badges: Pending (`#422006` bg / `#FCD34D` fg), In Progress (`#172554` bg / `#93C5FD` fg), Resolved (`#052E16` bg / `#86EFAC` fg), Critical (`#450A0A` bg / `#FCA5A5` fg).
+   - Dynamic `civic-badge` color-mix tokens automatically adapt contrast for light and dark environments.
+
+6. **Interactive Leaflet Map & Recharts Dark Mode**:
+   - **Leaflet Map (`/map`)**: Standard OpenStreetMap base tiles preserved without blind CSS filter inversion (preventing tile blur or color distortion), while popups, toolbars, attribution, and zoom controls adapt to dark mode.
+   - **Recharts Analytics (`/admin/analytics`)**: Updated category, severity, status, trend, and workload charts with theme-aware grid lines (`stroke="var(--border)"`), axis labels (`stroke="var(--muted-foreground)"`), and high-contrast dark popover tooltips.
+
+7. **Form State Preservation & Animations**:
+   - Switching themes updates CSS variables instantaneously without triggering component re-mounts or resetting user form inputs in the reporting wizard (`/report`) or admin triage.
+   - Subtle 200ms background and border color transitions for seamless theme switches.
+   - Full `prefers-reduced-motion` compliance: transitions and animations are set to 0ms when reduced motion is preferred.
+
+8. **Verification & Quality**:
+   - `npm run lint`: 0 errors, 0 warnings.
+   - `npm run typecheck`: 0 TypeScript errors.
+   - `npm run test:frontend`: 117/117 unit tests passing (including `tests/theme.test.mjs`).
+   - `npm run build`: Production build cleanly compiles all static and dynamic routes.
+
+---
+
+## Global UI/UX Redesign, Premium Visual Experience, Animations & Accessibility
+
+**Complete on 2026-11-25.** CivicPulse has undergone a comprehensive, global UI/UX redesign transforming the platform into a cohesive, highly accessible, intuitive, modern, and national-hackathon-grade civic technology system.
+
+### Key Redesign Accomplishments
+
+1. **Brand Identity & Cohesive Design System**:
+   - Modern civic technology aesthetic: Public service trustworthiness with SaaS precision.
+   - Primary palette: Primary Blue `#2563EB`, Primary Hover `#1D4ED8`, Light Blue Surface `#EFF6FF`.
+   - Neutral palette: Deep Navy `#0F172A`, Secondary Text `#475569`, Muted Text `#64748B`, Background `#F8FAFC`, Surface `#FFFFFF`, Border `#E2E8F0`.
+   - Semantic palette: Success `#16A34A`, Warning `#D97706`, Error `#DC2626`, Information `#2563EB`.
+   - Component radii: Inputs & Buttons 12px (`var(--radius-md)`), Cards 16px (`var(--radius-lg)`), Dialogs 20px (`var(--radius-xl)`).
+   - Shadows: Subtle cards (`0 1px 3px 0 rgb(15 23 42 / 0.05)`), Elevated lift (`0 10px 15px -3px rgb(15 23 42 / 0.08)`), Dialogs (`0 20px 25px -5px rgb(15 23 42 / 0.15)`).
+
+2. **Accessible Easy-Reading Mode ("Larger Text")**:
+   - Implemented `<ReadingModeToggle />` in Navbar, Footer, and Citizen Topbar.
+   - Powered by React 19 `useSyncExternalStore` and `useMounted` hook to eliminate cascading renders and hydration mismatches.
+   - Dynamically applies `data-reading-mode="large"` on `<html>`, scaling typography to 112.5%, body line-height to 1.75, and touch targets to ≥ 52px for senior citizens and visually impaired users. Persisted in `localStorage` without sensitive data.
+
+3. **CSS Motion & Animation Architecture**:
+   - Built zero-dependency CSS keyframe animations and utility classes (`animate-fade-in`, `animate-slide-up`, `animate-slide-down`, `animate-scale-in`, `animate-checkmark`, `animate-pulse-subtle`).
+   - Created reusable motion component primitives (`FadeIn`, `SlideIn`, `ScaleIn`, `AnimatedCard`) in `src/components/common/Motion.tsx`.
+   - Full `prefers-reduced-motion` compliance: automatically disables transitions, transforms, and animations when reduced motion is requested.
+
+4. **Public Landing Page & Navigation (`/`)**:
+   - Redesigned Navbar with backdrop blur, sticky elevation, responsive drawer, ReadingModeToggle, and high-visibility "Report an Issue" CTA.
+   - Memorable Hero section: "See a Problem? Report It. Make a Difference.", trust indicators ("Simple reporting. Clear updates. Community-powered action."), and interactive neighborhood demonstration preview with status indicators.
+   - Quick Reporting Categories: 6 interactive category cards (Pothole, Garbage, Water Leakage, Streetlight, Drainage, Other) linking directly to `/report?category=<category>`.
+   - 4-Step How It Works visual journey: 1. Describe the Problem, 2. Add Photo & Location, 3. Review & Submit, 4. Track Its Progress.
+   - Honest Feature Showcase & comprehensive FAQ accordion explaining routinely reported issues, privacy, and non-emergency notices.
+   - Professional footer with platform notices and prototype disclaimer.
+
+5. **Authentication & Return-to-Report UX**:
+   - Redesigned `/login` and `/register` with clean layouts, password visibility toggles, and accessible validation.
+   - Return-to-report flow: When visitors click "Report an Issue" or a category card, redirects to `/login?next=%2Freport...`.
+   - Displays clear explanatory notice: "Sign in to submit your report and track its progress."
+   - Automatically preserves safe return destination through registration and login with open-redirect protection.
+
+6. **Citizen Dashboard & Mobile Experience (`/dashboard`)**:
+   - Human-centered welcome banner: "How can we help your community today, <Name>?"
+   - High-prominence "Report an Issue" action button.
+   - Compact report summary cards (Total, Pending Review, In Progress, Resolved).
+   - Citizen mobile bottom navigation with elevated, floating primary Report button (`CitizenMobileNav.tsx`) and safe-area padding (`pb-safe`).
+
+7. **Streamlined Reporting Experience (`/report`)**:
+   - Clean 4-step progress stepper ("Issue Details" → "Add Photo" → "Confirm Location" → "Review & Submit").
+   - Preselected category support via URL search parameters.
+   - Optional AI assistance with explicit citizen consent, editable suggestions, and honest loading states.
+   - Map location selection with draggable pin, GPS fallback, and manual coordinate inputs.
+   - Duplicate detection with friendly language ("Has someone already reported this problem?"), nearby match cards, and community endorsement option.
+   - Final review summary with inline edit buttons, double-submit protection, and draft preservation on error.
+   - Gratifying Confirmation Screen (`ReportSuccess.tsx`): Checkmark drawing animation, actual backend tracking reference, and direct actions to "View Details", "My Complaints", "Dashboard", and "Report Another Issue".
+
+8. **Tracking, Details & Public Map**:
+   - `/my-reports`: Multi-attribute filtering (Status, Category, Search, Sort), responsive card/table layout.
+   - `/reports/[id]`: Authoritative complaint details, chronological status timeline, resolution proof image display, and "I Face This Problem Too" community support button.
+   - `/map`: Synchronized OpenStreetMap view with category-specific marker pins, responsive Map/List toggle, and filter toolbar.
+
+9. **Administrative Operations & Analytics (`/admin`, `/admin/complaints`, `/admin/analytics`)**:
+   - Professional dark navy operations sidebar (`AdminSidebar.tsx`) with high-contrast inverse brand logo.
+   - Overview: KPI cards, resolution rate progress bar, status distribution donut, urgent workload alert.
+   - Complaints Queue: Multi-attribute filtering, weighted priority score indicator, urgent badges, read-only preview modal.
+   - Triage & Mutation Workspace (`/admin/complaints/[id]`): Left column case overview, photo, timeline, resolution evidence; Right column department selector, triage form, lifecycle transition guard, optimistic concurrency conflict dialog.
+   - Analytics Dashboard (`/admin/analytics`): Recharts donut, horizontal bar, vertical bar, workload, and line charts with dual-presentation accessible data tables toggle.
+
+10. **Technical Verification & Code Quality**:
+    - `npm run lint`: 0 errors, 0 warnings (100% clean across all app and API routes).
+    - `npm run typecheck`: 0 TypeScript errors.
+    - `npm run test:frontend`: All 112 unit tests passing.
+    - `node --test tests/browser/*.test.mjs`: All 108 browser tests passing with zero horizontal overflow across 320, 375, 768, 1024, and 1440 px viewports.
+    - `npm run build`: Production build cleanly compiles all static and dynamic routes.
+
+---
+
 ## Phase 20 — Admin analytics dashboard, Recharts & civic performance insights
 
 **Complete locally on 2026-11-21.** The `frontend` working tree contains the changes for Phase 20, marking the successful completion of the entire 20-phase CivicPulse frontend roadmap. The administrative analytics and performance insights interface (`/admin/analytics`), dynamic server-side page shell (`src/app/admin/analytics/page.tsx`), loading skeleton (`src/app/admin/analytics/loading.tsx`), accessible error boundary (`src/app/admin/analytics/error.tsx`), client coordinator (`AdminAnalyticsDashboard.tsx`), analytics page header (`AnalyticsPageHeader.tsx`), 6-card metrics grid (`AnalyticsMetricsGrid.tsx`), status distribution donut chart (`ComplaintStatusChart.tsx`), category horizontal bar chart (`ComplaintCategoryChart.tsx`), severity distribution bar chart (`ComplaintSeverityChart.tsx`), time-series submission trend line chart (`ComplaintTrendChart.tsx`), department assignment workload bar chart (`DepartmentWorkloadChart.tsx`), resolution performance & speed card (`ResolutionPerformanceCard.tsx`), multi-attribute filter toolbar (`AnalyticsFilters.tsx`), accessible dual-presentation data tables (`AnalyticsDataTable.tsx`), multi-context empty state (`AnalyticsEmptyState.tsx`), error state (`AnalyticsErrorState.tsx`), client mounting hook (`src/hooks/useMounted.ts`), Zod validation schemas and aggregation utilities (`src/lib/validation/admin-analytics.ts`), analytics API service (`src/lib/api/analytics.ts`), navigation configuration update (`src/config/admin-navigation.ts` with `available: true`), unit test suite (`tests/admin-analytics.test.mjs`), and browser test suite (`tests/browser/admin-analytics.test.mjs`) are fully implemented and verified.

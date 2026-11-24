@@ -2,6 +2,7 @@
 
 import { useState } from "react";
 import Link from "next/link";
+import type { Route } from "next";
 import { useSearchParams } from "next/navigation";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
@@ -168,8 +169,23 @@ export function LoginForm() {
     }
   }
 
+  const nextParam = searchParams.get("next");
+
   return (
     <div className="grid gap-6">
+      {nextParam?.startsWith("/report") && !feedback && (
+        <div
+          role="status"
+          className="flex items-start gap-2.5 rounded-lg border border-blue-200 bg-blue-50/80 p-3.5 text-xs text-blue-900 leading-normal"
+        >
+          <Info className="size-4 shrink-0 text-blue-600 mt-0.5" aria-hidden="true" />
+          <div>
+            <p className="font-semibold text-blue-950">Reporting an Issue</p>
+            <p className="mt-0.5">Sign in to submit your report and track its progress.</p>
+          </div>
+        </div>
+      )}
+
       {feedback && (
         <div
           role="status"
@@ -258,7 +274,7 @@ export function LoginForm() {
       <div className="border-t border-border pt-4 text-center text-sm text-muted-foreground">
         Don&apos;t have an account?{" "}
         <Link
-          href="/register"
+          href={nextParam ? (`/register?next=${encodeURIComponent(nextParam)}` as Route) : "/register"}
           className="font-medium text-primary hover:text-primary-hover hover:underline"
         >
           Create an Account
