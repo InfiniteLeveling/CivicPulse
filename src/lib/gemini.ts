@@ -18,7 +18,7 @@ export function getGeminiModelName(): string {
   if (model && model.trim().length > 0) {
     return model.trim();
   }
-  return "gemini-2.5-flash";
+  return "gemini-3-flash-preview";
 }
 
 /**
@@ -33,7 +33,10 @@ export function getGeminiClient(): GoogleGenAI | null {
   }
 
   if (!cachedClient) {
-    cachedClient = new GoogleGenAI({ apiKey });
+    cachedClient = new GoogleGenAI({
+      apiKey,
+      httpOptions: { apiVersion: "v1beta" },
+    });
   }
 
   return cachedClient;

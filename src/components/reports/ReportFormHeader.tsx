@@ -1,5 +1,5 @@
 import Link from "next/link";
-import { ArrowLeft, Sparkles, ClipboardEdit } from "lucide-react";
+import { ArrowLeft, ShieldCheck, ClipboardEdit } from "lucide-react";
 import { PageHeader } from "@/components/common/PageHeader";
 import { Badge } from "@/components/ui/badge";
 import { buttonVariants } from "@/components/ui/button";
@@ -14,11 +14,11 @@ export function ReportFormHeader() {
         badge={
           <div className="flex flex-wrap items-center gap-2">
             <Badge variant="outline" className="border-primary/30 text-primary text-xs font-medium">
-              Step 1 of 4: Issue Details
+              Guided Issue Intake
             </Badge>
             <Badge variant="secondary" className="gap-1 text-xs">
-              <Sparkles className="size-3 text-amber-500" aria-hidden="true" />
-              <span>Phase 7 Active</span>
+              <ShieldCheck className="size-3 text-emerald-600 dark:text-emerald-400" aria-hidden="true" />
+              <span>Verified Reporting</span>
             </Badge>
           </div>
         }
@@ -40,8 +40,7 @@ export function ReportFormHeader() {
           <span>How Reporting Works in CivicPulse</span>
         </div>
         <p className="text-muted-foreground leading-relaxed">
-          In this phase, you specify the title, description, category, and visibility of the issue.
-          In subsequent phases, photo verification (Phase 8) and GPS map placement (Phase 10) will be added to ensure fast, verified dispatch to municipal authorities.
+          Enter the issue title, description, category, and visibility, then attach a clear photo and pinpoint the exact map location so municipal teams can review and resolve it quickly.
         </p>
       </div>
     </div>

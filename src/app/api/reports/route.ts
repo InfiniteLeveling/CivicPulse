@@ -2,11 +2,15 @@ import { NextRequest } from "next/server";
 import { getCurrentProfile, getCurrentUser, requireAdmin, requireUser } from "@/services/auth.service";
 import { createReport } from "@/services/report.service";
 import { listReports } from "@/services/report-query.service";
+import { enrichReportItems } from "@/lib/reports/server-queries";
+import { toComplaintSummary, type RawMappableReport } from "@/lib/reports/mapper";
+import { isReportUrgent } from "@/lib/validation/admin-reports";
 import { errorResponse, successResponse } from "@/utils/api-response";
 import { AppError } from "@/utils/app-error";
 import { logger } from "@/utils/logger";
 import { createReportSchema } from "@/validators/report.schema";
 import { reportQuerySchema } from "@/validators/report-query.schema";
+import type { CreateReportInput } from "@/types/report";
 
 export const dynamic = "force-dynamic";
 
@@ -64,14 +68,26 @@ export async function GET(request: NextRequest) {
     }
 
     const result = await listReports(filter, caller);
+    let enrichedItems = await enrichReportItems(
+      result.items as unknown as Array<RawMappableReport & { image_path?: string }>,
+      caller?.id
+    );
+
+    if (filter.urgent) {
+      enrichedItems = enrichedItems.filter((item) => isReportUrgent(item) && item.status !== "resolved");
+    }
+
+    const total = filter.urgent ? enrichedItems.length : result.pagination.total;
+    const totalPages = Math.max(1, Math.ceil(total / result.pagination.limit));
 
     const formattedResult = {
       ...result,
-      reports: result.items,
-      total: result.pagination.total,
+      items: enrichedItems,
+      reports: enrichedItems,
+      total,
       page: result.pagination.page,
       pageSize: result.pagination.limit,
-      total_pages: result.pagination.total_pages,
+      total_pages: totalPages,
     };
 
     return successResponse(formattedResult, {
@@ -129,22 +145,35 @@ export async function POST(request: NextRequest) {
       throw new AppError("VALIDATION_ERROR", message);
     }
 
-    const resolvedData = {
-      ...validationResult.data,
-      image_path: validationResult.data.image_path || (
-        validationResult.data.imageId?.startsWith("drafts/")
-          ? validationResult.data.imageId
-          : `drafts/${user.id}/${validationResult.data.imageId}`
-      ),
+    const resolvedPublication = validationResult.data.visibility ?? "public";
+    const resolvedImagePath =
+      validationResult.data.image_path ||
+      (validationResult.data.imageId?.startsWith("drafts/")
+        ? validationResult.data.imageId
+        : `drafts/${user.id}/${validationResult.data.imageId}`);
+
+    const createInput: CreateReportInput = {
+      title: validationResult.data.title,
+      description: validationResult.data.description,
+      category: validationResult.data.category,
+      latitude: validationResult.data.latitude,
+      longitude: validationResult.data.longitude,
+      image_path: resolvedImagePath,
+      severity: validationResult.data.severity,
+      publication: resolvedPublication,
+      submission_key: validationResult.data.submission_key,
     };
 
     // 5. Delegate complaint creation and image association to report service
-    const createdReport = await createReport(user.id, resolvedData as any);
+    const createdReport = await createReport(user.id, createInput);
+    const mappedReport = toComplaintSummary(createdReport as unknown as RawMappableReport, {
+      visibility: resolvedPublication,
+    });
 
     // 6. Return HTTP 201 with standardized response envelope
     return successResponse(
       {
-        report: createdReport,
+        report: mappedReport,
         ...createdReport,
       },
       {

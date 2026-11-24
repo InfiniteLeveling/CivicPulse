@@ -4,7 +4,6 @@ import {
   type AdminAnalyticsData,
   aggregateAnalyticsFromReports,
 } from "@/lib/validation/admin-analytics";
-import { mockMyReports } from "./reports-mock";
 
 export interface GetAdminAnalyticsOptions {
   timeRange?: "all" | "30d" | "7d";
@@ -24,7 +23,7 @@ export async function getAdminAnalytics(
   options: GetAdminAnalyticsOptions = {}
 ): Promise<AdminAnalyticsData> {
   if (options.forceError) {
-    throw new Error("Simulated analytics service failure (forceError=true).");
+    throw new Error("Unable to load municipal analytics data at the moment.");
   }
 
   if (options.empty) {
@@ -38,30 +37,10 @@ export async function getAdminAnalytics(
     });
   }
 
-  // Fetch stats and reports in parallel
+  // Fetch stats and reports in parallel from real endpoints
   const [statsResult, reportsResult] = await Promise.all([
-    getAdminStats({ signal: options.signal }).catch(() => ({
-      stats: {
-        total: mockMyReports.length,
-        pending: mockMyReports.filter((r) => r.status === "pending").length,
-        inProgress: mockMyReports.filter((r) => r.status === "in_progress").length,
-        resolved: mockMyReports.filter((r) => r.status === "resolved").length,
-        criticalActive: mockMyReports.filter(
-          (r) => (r.priority?.urgent || r.severity === "critical") && r.status !== "resolved"
-        ).length,
-        resolutionRate: 25.0,
-      },
-      isDemoData: true,
-    })),
-    getAdminReports({ pageSize: 100 }, { signal: options.signal }).catch(() => ({
-      items: mockMyReports,
-      total: mockMyReports.length,
-      page: 1,
-      pageSize: 100,
-      totalPages: 1,
-      urgentCount: 2,
-      isDemoData: true,
-    })),
+    getAdminStats({ signal: options.signal }),
+    getAdminReports({ pageSize: 100 }, { signal: options.signal }),
   ]);
 
   let reports = reportsResult.items;
@@ -89,6 +68,6 @@ export async function getAdminAnalytics(
   }
 
   const analytics = aggregateAnalyticsFromReports(reports, statsResult.stats);
-  analytics.isDemoData = statsResult.isDemoData || reportsResult.isDemoData;
+  analytics.isDemoData = false;
   return analytics;
 }

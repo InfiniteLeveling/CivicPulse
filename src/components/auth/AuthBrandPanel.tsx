@@ -57,7 +57,7 @@ export function AuthBrandPanel() {
       <div className="relative z-10 border-t border-slate-800 pt-6">
         <div className="flex items-center gap-2 text-xs text-slate-400">
           <CheckCircle2 className="size-4 text-emerald-400" aria-hidden="true" />
-          <span>Open Innovation Civic Technology Prototype</span>
+          <span>Civic Infrastructure Reporting &amp; Accountability Platform</span>
         </div>
       </div>
     </div>

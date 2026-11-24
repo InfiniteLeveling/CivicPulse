@@ -52,6 +52,7 @@ export interface CreateReportInput {
   longitude: number;
   image_path: string;
   severity?: ReportSeverity;
+  publication?: ReportPublication;
   submission_key?: string;
 }
 

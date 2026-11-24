@@ -96,7 +96,11 @@ export function AIAnalysisPanel({
 
     try {
       const data = await classifyIssueImage(
-        { imageId: uploadedImageId },
+        {
+          imageId: uploadedImageId,
+          consent: true,
+          descriptionHint: currentDescription,
+        },
         { signal: controller.signal }
       );
       setResult(data);
@@ -121,7 +125,7 @@ export function AIAnalysisPanel({
     } finally {
       abortControllerRef.current = null;
     }
-  }, [uploadedImageId, consent, onAnalysisIdChange]);
+  }, [uploadedImageId, consent, currentDescription, onAnalysisIdChange]);
 
   function handleApplySuggestions(applyDescription: boolean) {
     if (!result) return;
@@ -166,7 +170,7 @@ export function AIAnalysisPanel({
             </div>
           </div>
           <Badge variant="outline" className="text-[10px] font-normal shrink-0">
-            Phase 9 Active
+            Smart Vision
           </Badge>
         </div>
 

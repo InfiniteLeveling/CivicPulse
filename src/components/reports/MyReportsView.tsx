@@ -3,7 +3,7 @@
 import { useCallback, useEffect, useMemo, useState } from "react";
 import { useSearchParams } from "next/navigation";
 import type {
-  ComplaintSummary,
+  ComplaintStats,
   GetMyReportsResult,
   IssueCategory,
   MyReportsFilterState,
@@ -11,7 +11,8 @@ import type {
   ReportStatus,
 } from "@/types/domain";
 import { getMyReports } from "@/lib/api/reports";
-import { computeReportStats, mockMyReports } from "@/lib/api/reports-mock";
+import { apiRequest } from "@/lib/api/client";
+import { endpoints } from "@/lib/api/endpoints";
 import { Skeleton } from "@/components/ui/skeleton";
 import { Card, CardContent } from "@/components/ui/card";
 import { MyReportsHeader } from "./MyReportsHeader";
@@ -78,25 +79,22 @@ export function MyReportsView() {
   const [error, setError] = useState<string | null>(null);
   const [result, setResult] = useState<GetMyReportsResult | null>(null);
   const [refreshIndex, setRefreshIndex] = useState<number>(0);
-
-  // Overall account stats computed across the user's full reports
-  const allAccountReports: ComplaintSummary[] = useMemo(() => {
-    if (paramEmpty) return [];
-    return mockMyReports;
-  }, [paramEmpty]);
-
-  const summaryStats = useMemo(() => {
-    return computeReportStats(allAccountReports);
-  }, [allAccountReports]);
+  const [accountStats, setAccountStats] = useState<ComplaintStats>({
+    total: 0,
+    pending: 0,
+    inProgress: 0,
+    resolved: 0,
+    resolutionRate: null,
+  });
 
   const statusCounts = useMemo(() => {
     return {
-      all: summaryStats.total,
-      pending: summaryStats.pending,
-      in_progress: summaryStats.inProgress,
-      resolved: summaryStats.resolved,
+      all: accountStats.total,
+      pending: accountStats.pending,
+      in_progress: accountStats.inProgress,
+      resolved: accountStats.resolved,
     };
-  }, [summaryStats]);
+  }, [accountStats]);
 
   const hasActiveFilters =
     filterState.status !== "all" ||
@@ -104,29 +102,58 @@ export function MyReportsView() {
     filterState.search !== "" ||
     filterState.sortBy !== "newest";
 
-  // Fetch reports when filters or refreshIndex change
+  // Fetch reports and account-wide summary statistics when filters or refreshIndex change
   useEffect(() => {
     let active = true;
     const controller = new AbortController();
 
     async function loadReports() {
       try {
-        const data = await getMyReports(
-          {
-            status: filterState.status,
-            category: filterState.category,
-            q: filterState.search,
-            sort: filterState.sortBy,
-            page: filterState.page,
-            pageSize: PAGE_SIZE,
-            empty: paramEmpty,
-            forceError: paramForceError,
-          },
-          { signal: controller.signal }
-        );
+        const [data, statsData] = await Promise.all([
+          getMyReports(
+            {
+              status: filterState.status,
+              category: filterState.category,
+              q: filterState.search,
+              sort: filterState.sortBy,
+              page: filterState.page,
+              pageSize: PAGE_SIZE,
+              empty: paramEmpty,
+              forceError: paramForceError,
+            },
+            { signal: controller.signal }
+          ),
+          paramEmpty || paramForceError
+            ? Promise.resolve<ComplaintStats>({
+                total: 0,
+                pending: 0,
+                inProgress: 0,
+                resolved: 0,
+                resolutionRate: null,
+              })
+            : apiRequest<ComplaintStats>(endpoints.myStats, {
+                signal: controller.signal,
+              }).catch(() => null),
+        ]);
 
         if (active) {
           setResult(data);
+          if (statsData) {
+            setAccountStats(statsData);
+          } else if (
+            filterState.status === "all" &&
+            filterState.category === "all" &&
+            filterState.search === ""
+          ) {
+            const total = data.total ?? data.items.length;
+            setAccountStats({
+              total,
+              pending: data.items.filter((i) => i.status === "pending").length,
+              inProgress: data.items.filter((i) => i.status === "in_progress").length,
+              resolved: data.items.filter((i) => i.status === "resolved").length,
+              resolutionRate: null,
+            });
+          }
           setError(null);
           setLoading(false);
         }
@@ -208,10 +235,10 @@ export function MyReportsView() {
   return (
     <div className="space-y-6 pb-12">
       {/* Page Header */}
-      <MyReportsHeader isDemoData={result?.isDemoData} />
+      <MyReportsHeader />
 
       {/* 4 Stat Overview Cards */}
-      <MyReportsSummary stats={summaryStats} />
+      <MyReportsSummary stats={accountStats} />
 
       {/* Filter & Search Toolbar */}
       <Card className="border-border shadow-xs">

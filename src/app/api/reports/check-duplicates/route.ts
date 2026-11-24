@@ -53,15 +53,15 @@ export async function POST(request: NextRequest) {
     const duplicateData = await checkDuplicateReports(validationResult.data, user);
 
     // Map candidates for frontend compatibility
-    const candidates = (duplicateData.matches || []).map((m: any) => ({
+    const candidates = (duplicateData.matches || []).map((m) => ({
       id: m.id,
-      reference: m.reference ?? m.id.slice(0, 8).toUpperCase(),
+      reference: `CP-${m.id}`,
       title: m.title,
-      category: m.category,
+      category: m.category === "damaged_infrastructure" ? "other" : m.category,
       status: m.status,
       distanceMeters: m.distance_meters,
-      supportCount: m.support_count ?? 0,
-      imageUrl: m.image_url ?? null,
+      supportCount: 1,
+      imageUrl: null,
     }));
 
     // 5. Return standardized HTTP 200 response envelope with Cache-Control: no-store

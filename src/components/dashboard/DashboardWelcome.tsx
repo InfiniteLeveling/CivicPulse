@@ -1,7 +1,7 @@
 "use client";
 
 import Link from "next/link";
-import { PlusCircle, MapPin, Sparkles, Eye } from "lucide-react";
+import { PlusCircle, MapPin } from "lucide-react";
 import { buttonVariants } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { cn } from "@/lib/utils";
@@ -13,9 +13,7 @@ interface DashboardWelcomeProps {
 }
 
 export function DashboardWelcome({
-  userName = "Jane",
-  isDemoData = true,
-  isEmptyView = false,
+  userName = "Citizen",
 }: DashboardWelcomeProps) {
   // Extract first name for friendly greeting
   const firstName = userName.split(" ")[0] || "Citizen";
@@ -30,12 +28,6 @@ export function DashboardWelcome({
               <Badge variant="outline" className="bg-background/80 text-primary border-primary/20 text-xs py-0.5">
                 Citizen Portal
               </Badge>
-              {isDemoData && (
-                <Badge variant="secondary" className="text-[11px] gap-1">
-                  <Sparkles className="size-3 text-amber-500" aria-hidden="true" />
-                  <span>Preview Fixtures</span>
-                </Badge>
-              )}
             </div>
 
             <h1 className="text-2xl sm:text-3xl font-bold tracking-tight text-foreground">
@@ -64,30 +56,6 @@ export function DashboardWelcome({
           </div>
         </div>
       </div>
-
-      {/* Demo / State Notice Banner */}
-      {isDemoData && (
-        <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 rounded-xl border border-border/80 bg-muted/40 px-4 py-3 text-xs text-muted-foreground">
-          <div className="flex items-center gap-2">
-            <Sparkles className="size-4 text-primary shrink-0" aria-hidden="true" />
-            <span>
-              <strong>Demonstration Mode:</strong> Displaying sample citizen activity. Full backend synchronization activates in Phases 7–8.
-            </span>
-          </div>
-          <div className="flex items-center gap-2 shrink-0">
-            <Link
-              href={isEmptyView ? "/dashboard" : "/dashboard?empty=true"}
-              className={cn(
-                buttonVariants({ variant: "ghost", size: "xs" }),
-                "text-xs h-7 gap-1.5 text-foreground hover:bg-background"
-              )}
-            >
-              <Eye className="size-3.5" aria-hidden="true" />
-              <span>{isEmptyView ? "Show populated view" : "Preview empty state"}</span>
-            </Link>
-          </div>
-        </div>
-      )}
     </section>
   );
 }

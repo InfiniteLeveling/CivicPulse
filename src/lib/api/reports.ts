@@ -16,13 +16,7 @@ import type {
   SupportReportResponse,
 } from "@/types/domain";
 import { createReportSchema } from "../validation/report";
-import { filterPublicReports } from "../validation/public-reports";
-import { filterAdminReports, isReportUrgent } from "../validation/admin-reports";
-import {
-  filterReports,
-  getMockReportDetails,
-  mockMyReports,
-} from "./reports-mock";
+import { isReportUrgent } from "../validation/admin-reports";
 
 /**
  * Creates a new civic infrastructure complaint.
@@ -65,7 +59,6 @@ export async function createReport(
 /**
  * Adds community support to an existing public complaint.
  * Calls POST /api/reports/:id/support.
- * Avoids duplicate complaint submissions while boosting prioritization.
  */
 export async function supportReport(
   reportId: string,
@@ -76,46 +69,27 @@ export async function supportReport(
   }
 
   const trimmedId = reportId.trim();
-
-  try {
-    return await apiRequest<SupportReportResponse>(endpoints.support(trimmedId), {
-      signal: options.signal,
-    });
-  } catch (cause) {
-    if (options.signal?.aborted) {
-      throw cause;
+  const response = await apiRequest<
+    Partial<SupportReportResponse> & {
+      support_count?: number;
+      current_user_supported?: boolean;
+      priority_score?: number;
     }
+  >(endpoints.support(trimmedId), {
+    signal: options.signal,
+  });
 
-    // In development / demo environment without backend route handlers, gracefully fall back
-    const mock = getMockReportDetails(trimmedId);
-    if (!mock) {
-      throw new ApiError(404, "NOT_FOUND", "We couldn't find this complaint.");
-    }
-
-    if (mock.report.status === "resolved") {
-      throw new ApiError(400, "INVALID_STATE", "Support is closed for resolved complaints.");
-    }
-
-    if (mock.report.visibility === "private") {
-      throw new ApiError(403, "FORBIDDEN", "Community support is unavailable for private reports.");
-    }
-
-    // Update in-memory state
-    mock.report.supportCount += 1;
-    mock.report.viewerHasSupported = true;
-
-    return {
-      supportCount: mock.report.supportCount,
-      viewerHasSupported: true,
-      priority: mock.report.priority,
-    };
-  }
+  return {
+    supportCount: response.supportCount ?? response.support_count ?? 1,
+    viewerHasSupported:
+      response.viewerHasSupported ?? response.current_user_supported ?? true,
+    priority: response.priority,
+  };
 }
 
 /**
  * Retrieves the full authorized details of a complaint, including status timeline and resolution evidence.
  * Calls GET /api/reports/:id.
- * Falls back transparently in development/demo mode to mock fixture data when live API routes are unprovisioned.
  */
 export async function getReport(
   reportId: string,
@@ -135,54 +109,35 @@ export async function getReport(
     throw new ApiError(403, "FORBIDDEN", "You don't have permission to view this complaint.");
   }
 
-  try {
-    const response = await apiRequest<{ report: ComplaintDetails } | ComplaintDetails>(
-      endpoints.report(trimmedId),
-      {
-        signal: options.signal,
-      }
-    );
-
-    if ("report" in response && "history" in response) {
-      return response as unknown as ComplaintDetails;
+  const response = await apiRequest<{ report: ComplaintDetails } | ComplaintDetails>(
+    endpoints.report(trimmedId),
+    {
+      signal: options.signal,
     }
+  );
 
-    if ("report" in response && typeof (response as { report?: unknown }).report === "object") {
-      return (response as { report: ComplaintDetails }).report;
-    }
-
+  if ("report" in response && "history" in response) {
     return response as unknown as ComplaintDetails;
-  } catch (cause) {
-    if (options.signal?.aborted) {
-      throw cause;
-    }
-
-    if (cause instanceof ApiError && (cause.status === 404 || cause.status === 403)) {
-      throw cause;
-    }
-
-    // In development / demo environment without backend route handlers, gracefully fall back
-    const mock = getMockReportDetails(trimmedId);
-    if (!mock) {
-      throw new ApiError(404, "NOT_FOUND", "We couldn't find this complaint.");
-    }
-
-    return mock;
   }
+
+  if ("report" in response && typeof (response as { report?: unknown }).report === "object") {
+    return (response as { report: ComplaintDetails }).report;
+  }
+
+  return response as unknown as ComplaintDetails;
 }
 
 
 /**
  * Retrieves the current user's submitted civic reports with filtering, search, sorting, and pagination.
  * Calls GET /api/reports?scope=mine with optional filter params.
- * Falls back transparently in development/demo mode to mock fixture data when live API routes are unprovisioned.
  */
 export async function getMyReports(
   params?: GetMyReportsParams,
   options: { signal?: AbortSignal } = {}
 ): Promise<GetMyReportsResult> {
   if (params?.forceError) {
-    throw new ApiError(500, "INTERNAL_ERROR", "Simulated API error for testing error state handling.");
+    throw new ApiError(500, "INTERNAL_ERROR", "Unable to load complaints at the moment.");
   }
 
   if (params?.empty) {
@@ -191,7 +146,7 @@ export async function getMyReports(
       total: 0,
       page: 1,
       pageSize: params?.pageSize ?? 5,
-      isDemoData: true,
+      isDemoData: false,
     };
   }
 
@@ -217,59 +172,45 @@ export async function getMyReports(
     query.set("pageSize", String(params.pageSize));
   }
 
-  try {
-    const response = await apiRequest<PaginatedListResponse<ReportSummary>>(
-      endpoints.listReports,
-      {
-        query,
-        signal: options.signal,
-      }
-    );
-
-    if (!response || !Array.isArray(response.items)) {
-      throw new Error("Invalid report list envelope received from server.");
+  const response = await apiRequest<PaginatedListResponse<ReportSummary>>(
+    endpoints.listReports,
+    {
+      query,
+      signal: options.signal,
     }
+  );
 
-    return {
-      items: response.items,
-      total: response.total ?? response.items.length,
-      page: response.page ?? 1,
-      pageSize: response.pageSize ?? response.items.length,
-      isDemoData: false,
-    };
-  } catch (cause) {
-    if (options.signal?.aborted) {
-      throw cause;
-    }
-
-    // In development / demo environment without backend route handlers, gracefully fall back to fixture data.
-    const mockResult = filterReports(mockMyReports, params);
-    return {
-      ...mockResult,
-      isDemoData: true,
-    };
+  if (!response || !Array.isArray(response.items)) {
+    throw new Error("Invalid report list envelope received from server.");
   }
+
+  return {
+    items: response.items,
+    total: response.total ?? response.items.length,
+    page: response.page ?? 1,
+    pageSize: response.pageSize ?? response.items.length,
+    isDemoData: false,
+  };
 }
 
 /**
  * Retrieves authorized public civic reports with category, status, and search filtering.
  * Calls GET /api/reports?scope=public with optional filter params.
  * Strictly guarantees that private reports are never returned to the public map.
- * Falls back transparently in development/demo mode to mock fixture data when live API routes are unprovisioned.
  */
 export async function getPublicReports(
   params?: GetPublicReportsParams,
   options: { signal?: AbortSignal } = {}
 ): Promise<GetPublicReportsResult> {
   if (params?.forceError) {
-    throw new ApiError(500, "INTERNAL_ERROR", "Simulated API error for testing error state handling.");
+    throw new ApiError(500, "INTERNAL_ERROR", "Unable to load public complaints at the moment.");
   }
 
   if (params?.empty) {
     return {
       items: [],
       total: 0,
-      isDemoData: true,
+      isDemoData: false,
     };
   }
 
@@ -286,52 +227,38 @@ export async function getPublicReports(
     query.set("q", params.q.trim());
   }
 
-  try {
-    const response = await apiRequest<PaginatedListResponse<ReportSummary>>(
-      endpoints.listReports,
-      {
-        query,
-        signal: options.signal,
-      }
-    );
-
-    if (!response || !Array.isArray(response.items)) {
-      throw new Error("Invalid public report list envelope received from server.");
+  const response = await apiRequest<PaginatedListResponse<ReportSummary>>(
+    endpoints.listReports,
+    {
+      query,
+      signal: options.signal,
     }
+  );
 
-    // Defense-in-depth: Validate and filter out any non-public items
-    const safePublicItems = response.items.filter((item) => item.visibility === "public");
-
-    return {
-      items: safePublicItems,
-      total: response.total ?? safePublicItems.length,
-      isDemoData: false,
-    };
-  } catch (cause) {
-    if (options.signal?.aborted) {
-      throw cause;
-    }
-
-    // In development / demo environment without backend route handlers, gracefully fall back to fixture data.
-    const mockResult = filterPublicReports(mockMyReports, params);
-    return {
-      ...mockResult,
-      isDemoData: true,
-    };
+  if (!response || !Array.isArray(response.items)) {
+    throw new Error("Invalid public report list envelope received from server.");
   }
+
+  // Defense-in-depth: Validate and filter out any non-public items
+  const safePublicItems = response.items.filter((item) => item.visibility === "public");
+
+  return {
+    items: safePublicItems,
+    total: response.total ?? safePublicItems.length,
+    isDemoData: false,
+  };
 }
 
 /**
  * Retrieves authorized municipal complaint queue with search, filtering, and priority sorting.
  * Calls GET /api/reports?scope=admin with query parameters.
- * Falls back transparently in development/demo mode to mock fixture data when live API routes are unprovisioned.
  */
 export async function getAdminReports(
   params?: GetAdminReportsParams,
   options: { signal?: AbortSignal } = {}
 ): Promise<GetAdminReportsResult> {
   if (params?.forceError) {
-    throw new ApiError(500, "INTERNAL_ERROR", "Simulated API error for testing error state handling.");
+    throw new ApiError(500, "INTERNAL_ERROR", "Unable to load administrative queue at the moment.");
   }
 
   if (params?.empty) {
@@ -342,7 +269,7 @@ export async function getAdminReports(
       pageSize: params?.pageSize ?? 10,
       totalPages: 1,
       urgentCount: 0,
-      isDemoData: true,
+      isDemoData: false,
     };
   }
 
@@ -374,46 +301,33 @@ export async function getAdminReports(
     query.set("pageSize", String(params.pageSize));
   }
 
-  try {
-    const response = await apiRequest<PaginatedListResponse<ComplaintSummary>>(
-      endpoints.listReports,
-      {
-        query,
-        signal: options.signal,
-      }
-    );
-
-    if (!response || !Array.isArray(response.items)) {
-      throw new Error("Invalid admin report list envelope received from server.");
+  const response = await apiRequest<PaginatedListResponse<ComplaintSummary>>(
+    endpoints.listReports,
+    {
+      query,
+      signal: options.signal,
     }
+  );
 
-    const pageSize = params?.pageSize ?? 10;
-    const total = response.total ?? response.items.length;
-    const totalPages = Math.max(1, Math.ceil(total / pageSize));
-
-    return {
-      items: response.items,
-      total,
-      page: response.page ?? 1,
-      pageSize: response.pageSize ?? pageSize,
-      totalPages,
-      urgentCount: response.items.filter(
-        (r) => isReportUrgent(r) && r.status !== "resolved"
-      ).length,
-      isDemoData: false,
-    };
-  } catch (cause) {
-    if (options.signal?.aborted) {
-      throw cause;
-    }
-
-    // In development / demo environment without backend route handlers, gracefully fall back to fixture data.
-    const mockResult = filterAdminReports(mockMyReports, params);
-    return {
-      ...mockResult,
-      isDemoData: true,
-    };
+  if (!response || !Array.isArray(response.items)) {
+    throw new Error("Invalid admin report list envelope received from server.");
   }
+
+  const pageSize = params?.pageSize ?? 10;
+  const total = response.total ?? response.items.length;
+  const totalPages = Math.max(1, Math.ceil(total / pageSize));
+
+  return {
+    items: response.items,
+    total,
+    page: response.page ?? 1,
+    pageSize: response.pageSize ?? pageSize,
+    totalPages,
+    urgentCount: response.items.filter(
+      (r) => isReportUrgent(r) && r.status !== "resolved"
+    ).length,
+    isDemoData: false,
+  };
 }
 
 

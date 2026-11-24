@@ -2,8 +2,7 @@
 
 import { useState } from "react";
 import Link from "next/link";
-import type { Route } from "next";
-import { useRouter, useSearchParams } from "next/navigation";
+import { useSearchParams } from "next/navigation";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { toast } from "sonner";
@@ -11,15 +10,30 @@ import { ArrowRight, Info } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { PasswordInput } from "@/components/auth/PasswordInput";
+import { OAuthProviders } from "@/components/auth/OAuthProviders";
 import { loginSchema, type LoginFormValues } from "@/lib/validation/auth";
 import { createClient, isSupabaseConfigured } from "@/lib/supabase/client";
 import { getSafeRedirectPath } from "@/lib/auth/redirects";
 
 export function LoginForm() {
   const [submitting, setSubmitting] = useState(false);
-  const [feedback, setFeedback] = useState<string | null>(null);
-  const router = useRouter();
   const searchParams = useSearchParams();
+  const initialError = (() => {
+    const errCode = searchParams.get("error");
+    const errDesc = searchParams.get("error_description");
+    if (errDesc) return errDesc;
+    if (errCode === "verification_failed") {
+      return "Verification link invalid or expired. Please sign in or request a new link.";
+    }
+    if (errCode === "oauth_failed") {
+      return "Social sign-in was cancelled or could not be completed. Please try again.";
+    }
+    if (errCode === "not_configured") {
+      return "Authentication service is temporarily unavailable.";
+    }
+    return null;
+  })();
+  const [feedback, setFeedback] = useState<string | null>(initialError);
 
   const {
     register,
@@ -42,9 +56,9 @@ export function LoginForm() {
     if (!isSupabaseConfigured()) {
       setSubmitting(false);
       const notice =
-        "Supabase credentials are required in .env.local to authenticate. Please configure NEXT_PUBLIC_SUPABASE_URL and NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY.";
+        "Authentication service is temporarily unavailable. Please try again later.";
       setFeedback(notice);
-      toast.error("Configuration Required", {
+      toast.error("Sign In Unavailable", {
         description: notice,
         duration: 6000,
       });
@@ -83,6 +97,11 @@ export function LoginForm() {
       // Query role to determine landing destination
       let destination = "/dashboard";
       try {
+        await supabase.rpc("civicpulse_ensure_profile");
+      } catch {
+        // Non-fatal
+      }
+      try {
         const { data: profile } = await supabase
           .from("profiles")
           .select("role")
@@ -96,13 +115,12 @@ export function LoginForm() {
         // Safe failover to citizen dashboard
       }
 
-      const nextParam = searchParams.get("next");
+      const nextParam = searchParams.get("next") ?? searchParams.get("redirectTo");
       if (nextParam) {
         destination = getSafeRedirectPath(nextParam, destination);
       }
 
-      router.push(destination as Route);
-      router.refresh();
+      window.location.assign(destination);
     } catch (err: unknown) {
       setSubmitting(false);
       const msg =
@@ -123,9 +141,9 @@ export function LoginForm() {
     }
 
     if (!isSupabaseConfigured()) {
-      toast.error("Configuration Required", {
+      toast.error("Unavailable", {
         description:
-          "Supabase credentials are required to dispatch password reset emails.",
+          "Password recovery is temporarily unavailable.",
       });
       return;
     }
@@ -228,6 +246,13 @@ export function LoginForm() {
           Sign In <ArrowRight className="size-4" aria-hidden="true" />
         </Button>
       </form>
+
+      <OAuthProviders
+        mode="login"
+        nextPath={searchParams.get("next")}
+        disabled={submitting}
+        onError={(msg) => setFeedback(msg)}
+      />
 
       {/* Switch to Registration */}
       <div className="border-t border-border pt-4 text-center text-sm text-muted-foreground">

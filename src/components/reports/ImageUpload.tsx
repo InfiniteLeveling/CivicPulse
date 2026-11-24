@@ -41,6 +41,30 @@ export function ImageUpload({
     };
   }, []);
 
+  async function uploadFile(targetFile: File) {
+    abortControllerRef.current?.abort();
+    const controller = new AbortController();
+    abortControllerRef.current = controller;
+
+    onStatusChange("uploading");
+    setUploadError(null);
+
+    try {
+      const response = await uploadIssueImage(targetFile, { signal: controller.signal });
+      onUploadSuccess(response);
+      onStatusChange("uploaded");
+      toast.success("Photograph uploaded successfully");
+    } catch (err) {
+      if (controller.signal.aborted) {
+        return;
+      }
+      const msg = err instanceof Error ? err.message : "Failed to upload image.";
+      setUploadError(msg);
+      onStatusChange("error", msg);
+      toast.error("Upload failed", { description: msg });
+    }
+  }
+
   function handleFileSelected(newFile: File) {
     // 1. Abort any previous pending upload request
     abortControllerRef.current?.abort();
@@ -53,14 +77,11 @@ export function ImageUpload({
       return;
     }
 
-    // 3. Clear errors and register new file
+    // 3. Clear errors, register file, and immediately upload to private storage
     setValidationError(null);
     setUploadError(null);
     onFileChange(newFile);
-    onStatusChange("selected");
-    toast.success("Photo selected", {
-      description: `${newFile.name} is ready for review or upload.`,
-    });
+    void uploadFile(newFile);
   }
 
   function handleRemove() {
@@ -78,31 +99,7 @@ export function ImageUpload({
 
   async function handleUpload() {
     if (!file) return;
-
-    abortControllerRef.current?.abort();
-    const controller = new AbortController();
-    abortControllerRef.current = controller;
-
-    onStatusChange("uploading");
-    setUploadError(null);
-
-    try {
-      const response = await uploadIssueImage(file, { signal: controller.signal });
-      onUploadSuccess(response);
-      onStatusChange("uploaded");
-      toast.success("Photograph uploaded successfully", {
-        description: `Server reference: ${response.imageId}`,
-      });
-    } catch (err) {
-      if (controller.signal.aborted) {
-        // Ignored if cancelled by user action
-        return;
-      }
-      const msg = err instanceof Error ? err.message : "Failed to upload image.";
-      setUploadError(msg);
-      onStatusChange("error", msg);
-      toast.error("Upload failed", { description: msg });
-    }
+    await uploadFile(file);
   }
 
   return (

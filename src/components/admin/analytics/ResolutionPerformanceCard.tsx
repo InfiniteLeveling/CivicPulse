@@ -76,7 +76,7 @@ export function ResolutionPerformanceCard({
 
         {/* Guidance disclaimer */}
         <p className="text-[11px] text-muted-foreground leading-relaxed">
-          Resolution performance is computed strictly from authoritative backend timestamps (<code className="font-mono text-[10px]">createdAt</code> and <code className="font-mono text-[10px]">resolvedAt</code>). CivicPulse does not synthesize fictional municipal performance scores or subjective citizen sentiment.
+          Resolution performance is calculated directly from recorded report submission and resolution timestamps with required photo evidence.
         </p>
       </CardContent>
     </Card>

@@ -12,6 +12,7 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { PasswordInput } from "@/components/auth/PasswordInput";
 import { PasswordStrength } from "@/components/auth/PasswordStrength";
+import { OAuthProviders } from "@/components/auth/OAuthProviders";
 import { registerSchema, type RegisterFormValues } from "@/lib/validation/auth";
 import { createClient, isSupabaseConfigured } from "@/lib/supabase/client";
 
@@ -49,9 +50,9 @@ export function RegisterForm() {
     if (!isSupabaseConfigured()) {
       setSubmitting(false);
       const notice =
-        "Supabase credentials are required in .env.local to register. Please configure NEXT_PUBLIC_SUPABASE_URL and NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY.";
+        "Registration is temporarily unavailable. Please try again later.";
       setFeedback(notice);
-      toast.error("Configuration Required", {
+      toast.error("Registration Unavailable", {
         description: notice,
         duration: 6000,
       });
@@ -143,7 +144,7 @@ export function RegisterForm() {
             disabled={submitting}
             aria-invalid={errors.fullName ? "true" : undefined}
             aria-describedby={errors.fullName ? "register-name-error" : undefined}
-            placeholder="Jane Citizen"
+            placeholder="Enter your full name"
             {...register("fullName")}
           />
           {errors.fullName && (
@@ -230,8 +231,7 @@ export function RegisterForm() {
             <span>Citizen Account Policy</span>
           </div>
           <p className="mt-1">
-            Public accounts are provisioned as citizen reporters. CivicPulse is an open-innovation
-            demonstration platform; personal details are not shared with third parties.
+            Public accounts are registered as citizen reporters with strict privacy and role protections.
           </p>
         </div>
 
@@ -244,6 +244,12 @@ export function RegisterForm() {
           Create Account <ArrowRight className="size-4" aria-hidden="true" />
         </Button>
       </form>
+
+      <OAuthProviders
+        mode="register"
+        disabled={submitting}
+        onError={(msg) => setFeedback(msg)}
+      />
 
       {/* Switch to Login */}
       <div className="border-t border-border pt-4 text-center text-sm text-muted-foreground">

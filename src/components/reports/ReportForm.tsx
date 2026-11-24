@@ -452,7 +452,7 @@ export function ReportForm() {
                 />
               </section>
 
-              {/* Section 5: Issue Location & GPS Confirmation (Phase 10 Active) */}
+              {/* Section 5: Issue Location & GPS Confirmation */}
               <section aria-labelledby="section-location-heading" className="space-y-4 pt-4 border-t border-border/60">
                 <div className="border-b border-border/60 pb-3 flex items-center justify-between">
                   <div>
@@ -464,7 +464,7 @@ export function ReportForm() {
                     </p>
                   </div>
                   <Badge variant="outline" className="text-[10px] border-primary/30 text-primary">
-                    Phase 10 Active
+                    GPS / Map Pin
                   </Badge>
                 </div>
 
@@ -475,7 +475,7 @@ export function ReportForm() {
                 />
               </section>
 
-              {/* Section 6: Nearby Duplicate Check (Phase 11 Active) */}
+              {/* Section 6: Nearby Duplicate Check */}
               <section aria-labelledby="section-duplicate-heading" className="space-y-4 pt-4 border-t border-border/60">
                 <div className="border-b border-border/60 pb-3 flex items-center justify-between">
                   <div>
@@ -487,7 +487,7 @@ export function ReportForm() {
                     </p>
                   </div>
                   <Badge variant="outline" className="text-[10px] border-primary/30 text-primary">
-                    Phase 11 Active
+                    Spatial Check
                   </Badge>
                 </div>
 
@@ -512,10 +512,10 @@ export function ReportForm() {
               <section aria-label="Dispatch readiness section" className="space-y-3 pt-4 border-t border-border/60">
                 <div className="flex items-center justify-between">
                   <span className="text-xs font-semibold uppercase tracking-wider text-muted-foreground">
-                    Final Stage: Municipal Dispatch
+                    Final Step: Review &amp; Submit
                   </span>
                   <Badge variant="outline" className="text-[10px] border-primary/30 text-primary">
-                    Phase 12 Active
+                    Ready to Submit
                   </Badge>
                 </div>
 
@@ -524,9 +524,9 @@ export function ReportForm() {
                     <Send className="size-4" />
                   </span>
                   <div>
-                    <p className="font-semibold text-foreground">Municipal Persist &amp; Dispatch</p>
+                    <p className="font-semibold text-foreground">Municipal Dispatch</p>
                     <p className="text-muted-foreground text-[11px] mt-0.5">
-                      Review all entered evidence, confirmed coordinates, and duplicate evaluations before final dispatch via <code className="font-mono text-[10px]">POST /api/reports</code>.
+                      Review your issue details, attached evidence photo, and confirmed location before submitting to the responsible municipal department.
                     </p>
                   </div>
                 </div>

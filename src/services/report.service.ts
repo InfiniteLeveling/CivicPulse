@@ -6,7 +6,6 @@ import type { CreateReportInput, CreateReportResponseData } from "@/types/report
 import { AppError } from "@/utils/app-error";
 import { logger } from "@/utils/logger";
 import { verifyOwnedDraftPath } from "@/services/storage.service";
-import { calculateInitialPriority } from "@/utils/priority";
 import { emitRealtimeReportEvent } from "@/services/realtime.service";
 
 /**
@@ -51,9 +50,13 @@ export async function createReport(
   }
 
   const submissionKey = input.submission_key ?? crypto.randomUUID();
+  const desiredPublication = input.publication ?? "private";
 
-  // 3. Attempt atomic transaction via civicpulse_create_report RPC
-  const { data: rpcData, error: rpcError } = await supabase.rpc("civicpulse_create_report", {
+  // 3. Attempt atomic transaction via civicpulse_create_report RPC.
+  // When publication === 'public', pass p_publication so updated databases persist it atomically;
+  // if the database only has the legacy 8-argument RPC, fall back safely to direct citizen insert
+  // which supports the granted `publication` column.
+  const rpcArgs: Record<string, unknown> = {
     p_title: input.title,
     p_description: input.description,
     p_category: input.category,
@@ -62,7 +65,12 @@ export async function createReport(
     p_image_path: input.image_path,
     p_severity: input.severity ?? "medium",
     p_submission_key: submissionKey,
-  });
+  };
+  if (desiredPublication === "public") {
+    rpcArgs.p_publication = "public";
+  }
+
+  const { data: rpcData, error: rpcError } = await supabase.rpc("civicpulse_create_report", rpcArgs);
 
   if (!rpcError && rpcData) {
     logger.info("report.created", { status: 201 });
@@ -121,7 +129,7 @@ export async function createReport(
     }
   }
 
-  // 4. Fallback: Direct Table Persistence
+  // 4. Fallback: Direct Table Persistence (strictly uses the 8 columns granted to authenticated citizens)
   // Step 4a: Insert into public.reports
   const { data: report, error: reportError } = await supabase
     .from("reports")
@@ -131,13 +139,9 @@ export async function createReport(
       title: input.title,
       description: input.description,
       category: input.category,
-      severity: input.severity ?? "medium",
-      status: "pending",
       latitude: input.latitude,
       longitude: input.longitude,
-      publication: "private",
-      visibility: "listed",
-      priority_score: calculateInitialPriority(input.severity ?? "medium"),
+      publication: desiredPublication,
     })
     .select(
       "id, reference, title, description, category, severity, status, priority_score, latitude, longitude, created_at"

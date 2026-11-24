@@ -1,13 +1,13 @@
 import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from "@/components/ui/accordion";
 
 const questions = [
-  ["Who can use CivicPulse?", "CivicPulse is designed for residents, students and local communities, alongside the teams responsible for shared infrastructure. Anyone can explore the public prototype."],
-  ["How will I report and track an issue?", "The planned reporting flow lets a signed-in resident add a description, photo and confirmed location. A case reference will link to status updates and repair evidence."],
-  ["What if the AI gets the category wrong?", "AI suggestions are optional. The planned form lets you correct the category and description or enter them yourself. Staff can review the suggested severity."],
-  ["How will duplicate detection work?", "Nearby, unresolved reports in a similar category are candidates for review. A resident can support an existing report or explain why the new issue is separate."],
-  ["Is CivicPulse connected to government authorities?", "This prototype uses a simulated authority. A live connection to a municipality or maintenance department would require an agreement with that organization."],
-  ["What happens to my photos?", "This preview accepts no uploads. For future reporting, choose photos of the issue itself and keep faces, license plates and private details out of the frame. The planned AI analysis requires your consent."],
-  ["Can I use CivicPulse in an emergency?", "CivicPulse is for routine maintenance. For an immediate threat to life or safety, contact local emergency services directly."],
+  ["Who can use CivicPulse?", "CivicPulse is built for residents, campus communities, and municipal teams responsible for shared public infrastructure. Anyone can view the public civic map, while signed-in citizens can submit and track complaints."],
+  ["How do I report and track an issue?", "Sign in to submit an issue with a title, description, photo, visibility setting, and map pin. Each submission receives a trackable case reference and full status timeline under My Complaints."],
+  ["What if the AI gets the category wrong?", "AI image suggestions are always optional. You can review and adjust the suggested category, severity, and description before submitting your report."],
+  ["How does duplicate detection work?", "Nearby unresolved reports in a similar category within 100 meters are flagged for review so you can support an existing report or confirm yours is a separate issue."],
+  ["How are complaints routed to authorities?", "CivicPulse routes submitted issues to the responsible municipal department queue, prioritizing complaints by severity, community support, and age."],
+  ["What happens to my uploaded photos?", "Uploaded photographs are stored privately in secure cloud storage. If you consent to AI analysis, the image is analyzed only to assist with issue categorization; please avoid capturing faces or license plates."],
+  ["Can I use CivicPulse in an emergency?", "CivicPulse is for civic infrastructure maintenance and tracking. For an immediate threat to life or safety, contact local emergency services directly."],
 ];
 
 export function FAQSection() {

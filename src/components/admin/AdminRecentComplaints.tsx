@@ -1,3 +1,4 @@
+import Link from "next/link";
 import { ClipboardList, Info, Calendar } from "lucide-react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
@@ -72,9 +73,12 @@ export function AdminRecentComplaints({ reports }: AdminRecentComplaintsProps) {
                   </div>
 
                   <div className="shrink-0 flex items-center">
-                    <span className="text-[11px] text-muted-foreground italic">
-                      Triage in Phase 19
-                    </span>
+                    <Link
+                      href={`/admin/complaints/${report.id}`}
+                      className="text-[11px] font-medium text-primary hover:underline"
+                    >
+                      Open Triage
+                    </Link>
                   </div>
                 </div>
               );
@@ -83,14 +87,14 @@ export function AdminRecentComplaints({ reports }: AdminRecentComplaintsProps) {
         ) : (
           <div className="py-8 text-center text-xs text-muted-foreground space-y-1">
             <p className="font-medium text-foreground">No Complaints Recorded Yet</p>
-            <p>Submitted civic issues will appear here as the platform begins receiving reports.</p>
+            <p>Submitted civic issues will appear here as citizens file reports.</p>
           </div>
         )}
 
         <div className="pt-2 border-t border-border/60 flex items-center gap-2 text-[11px] text-muted-foreground">
           <Info className="size-3.5 text-primary shrink-0" aria-hidden="true" />
           <span>
-            Direct administrative triage, department assignment, and status mutations activate in Phase 19.
+            Select any complaint to assign departments, update status, and attach resolution evidence.
           </span>
         </div>
       </CardContent>

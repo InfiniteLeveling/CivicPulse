@@ -1,12 +1,14 @@
 import type { Metadata } from "next";
 import { AdminComplaintsView } from "@/components/admin/complaints/AdminComplaintsView";
-import { getAdminReports } from "@/lib/api/reports";
+import { getAdminReportsServerData } from "@/lib/reports/server-queries";
 import type {
   GetAdminReportsParams,
   IssueCategory,
   IssueSeverity,
   ReportStatus,
 } from "@/types/domain";
+
+export const dynamic = "force-dynamic";
 
 export const metadata: Metadata = {
   title: "Complaints Queue · Admin | CivicPulse",
@@ -50,7 +52,7 @@ export default async function AdminComplaintsPage({
     forceError: resolved?.forceError === "true",
   };
 
-  const initialData = await getAdminReports(params);
+  const initialData = await getAdminReportsServerData(params);
 
   return <AdminComplaintsView initialData={initialData} initialParams={params} />;
 }

@@ -12,6 +12,15 @@ import {
  * Accepts both backend (limit, search, mine) and frontend (pageSize, q, scope="mine") parameter names.
  * Strictly rejects unknown query filters to prevent injection attacks.
  */
+const EXTENDED_SORT_OPTIONS = [
+  ...REPORT_SORT_OPTIONS,
+  "support",
+  "priority",
+  "priority_asc",
+  "recent",
+  "most_supported",
+] as const;
+
 export const reportQuerySchema = z
   .object({
     page: z.coerce
@@ -40,7 +49,11 @@ export const reportQuerySchema = z
 
     severity: z.enum(REPORT_SEVERITIES).optional(),
 
-    sort: z.enum(REPORT_SORT_OPTIONS).default("newest"),
+    sort: z.enum(EXTENDED_SORT_OPTIONS).default("newest"),
+
+    urgent: z
+      .preprocess((val) => val === true || val === "true" || val === "1", z.boolean())
+      .optional(),
 
     search: z
       .string()
@@ -62,16 +75,31 @@ export const reportQuerySchema = z
       return false;
     }, z.boolean().default(false)),
 
-    scope: z.enum(["admin", "mine"]).optional(),
+    scope: z.enum(["admin", "mine", "public"]).optional(),
   })
   .strict()
-  .transform((val) => ({
-    ...val,
-    limit: val.pageSize ?? val.limit,
-    search: val.q ?? val.search,
-    mine: val.scope === "mine" ? true : val.mine,
-    scope: val.scope === "admin" ? ("admin" as const) : undefined,
-  }));
+  .transform((val) => {
+    const sortMap: Record<string, (typeof REPORT_SORT_OPTIONS)[number]> = {
+      newest: "newest",
+      recent: "newest",
+      oldest: "oldest",
+      priority_high: "priority_high",
+      priority: "priority_high",
+      support: "priority_high",
+      most_supported: "priority_high",
+      priority_low: "priority_low",
+      priority_asc: "priority_low",
+    };
+
+    return {
+      ...val,
+      limit: val.pageSize ?? val.limit,
+      search: val.q ?? val.search,
+      sort: sortMap[val.sort] ?? "newest",
+      mine: val.scope === "mine" ? true : val.mine,
+      scope: val.scope === "admin" ? ("admin" as const) : undefined,
+    };
+  });
 
 export type ReportQuerySchemaInput = z.infer<typeof reportQuerySchema>;
 

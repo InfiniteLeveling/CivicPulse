@@ -28,7 +28,7 @@ export function ReportDetailsView({
   backLabel,
 }: ReportDetailsViewProps) {
   const [details, setDetails] = useState<ComplaintDetails>(initialDetails);
-  const [isAuthenticated, setIsAuthenticated] = useState<boolean>(true); // default true for demo environment
+  const [isAuthenticated, setIsAuthenticated] = useState<boolean>(false);
   const [isRefreshing, startRefresh] = useTransition();
 
   // Check client-side authentication status

@@ -31,7 +31,7 @@ const navItems = [
     title: "Report Issue",
     href: "/report",
     icon: PlusCircle,
-    badge: "Phase 7",
+    badge: null,
   },
   {
     title: "My Complaints",
@@ -50,8 +50,8 @@ const navItems = [
 export function CitizenSidebar({ user, className }: CitizenSidebarProps) {
   const pathname = usePathname();
 
-  const displayName = user?.name || "Jane Citizen";
-  const displayEmail = user?.email || "citizen@example.org";
+  const displayName = user?.name || "Citizen";
+  const displayEmail = user?.email || "citizen@civicpulse.org";
   const initial = displayName.charAt(0).toUpperCase() || "C";
 
   return (

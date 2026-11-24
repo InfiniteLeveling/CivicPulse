@@ -1,4 +1,4 @@
-import { RefreshCw, Database, AlertOctagon } from "lucide-react";
+import { RefreshCw, AlertOctagon } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 
@@ -13,7 +13,6 @@ interface AdminComplaintsHeaderProps {
 export function AdminComplaintsHeader({
   total,
   urgentCount,
-  isDemoData,
   isRefreshing,
   onRefresh,
 }: AdminComplaintsHeaderProps) {
@@ -46,17 +45,6 @@ export function AdminComplaintsHeader({
       </div>
 
       <div className="flex items-center gap-2.5 shrink-0 flex-wrap">
-        {isDemoData && (
-          <Badge
-            variant="outline"
-            className="text-[10px] border-amber-500/30 bg-amber-500/10 text-amber-700 dark:text-amber-300 gap-1"
-            title="Authoritative backend REST endpoint GET /api/reports?scope=admin is unprovisioned. Showing isolated development fixtures."
-          >
-            <Database className="size-2.5" aria-hidden="true" />
-            <span>Demo Data</span>
-          </Badge>
-        )}
-
         <Button
           type="button"
           variant="outline"

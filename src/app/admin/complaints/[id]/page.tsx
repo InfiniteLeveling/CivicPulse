@@ -1,8 +1,10 @@
 import { notFound } from "next/navigation";
 import type { Metadata } from "next";
-import { getAdminReportDetails } from "@/lib/api/admin-reports";
-import { ApiError } from "@/lib/api/client";
+import { getReportDetailsServerData } from "@/lib/reports/server-queries";
+import { AppError } from "@/utils/app-error";
 import { AdminComplaintDetails } from "@/components/admin/complaints/AdminComplaintDetails";
+
+export const dynamic = "force-dynamic";
 
 interface AdminComplaintDetailPageProps {
   params: Promise<{ id: string }>;
@@ -14,7 +16,7 @@ export async function generateMetadata({
   const { id } = await params;
 
   try {
-    const details = await getAdminReportDetails(id);
+    const details = await getReportDetailsServerData(id);
     return {
       title: `Triage: ${details.report.reference} - ${details.report.title} | Admin Portal`,
       description: `Administrative review, department triage, and status lifecycle for complaint ${details.report.reference}.`,
@@ -34,9 +36,9 @@ export default async function AdminComplaintDetailPage({
 
   let details;
   try {
-    details = await getAdminReportDetails(id);
+    details = await getReportDetailsServerData(id);
   } catch (err: unknown) {
-    if (err instanceof ApiError && err.status === 404) {
+    if (err instanceof AppError && (err.status === 404 || err.status === 422)) {
       notFound();
     }
     throw err;

@@ -1,6 +1,5 @@
 import { createClient } from "@supabase/supabase-js";
 import fs from "fs";
-import path from "path";
 
 // Read .env.local or .env
 function loadEnv() {
@@ -91,7 +90,7 @@ async function ensureUser(userDef) {
   // Wait 1 second for potential trigger execution
   await new Promise((r) => setTimeout(r, 1000));
 
-  const { data: profile, error: profileErr } = await supabase
+  const { data: profile } = await supabase
     .from("profiles")
     .select("id, full_name, role")
     .eq("id", userId)

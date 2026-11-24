@@ -1,8 +1,13 @@
 import { Building2 } from "lucide-react";
 import { LandingActions } from "./LandingActions";
 import { NeighborhoodPreview } from "./NeighborhoodPreview";
+import type { ComplaintSummary } from "@/types/domain";
 
-export function HeroSection() {
+interface HeroSectionProps {
+  reports?: ComplaintSummary[];
+}
+
+export function HeroSection({ reports = [] }: HeroSectionProps) {
   return (
     <section aria-labelledby="hero-title" className="hero-section">
       <div className="content-container hero-grid">
@@ -13,9 +18,9 @@ export function HeroSection() {
           </h1>
           <p className="hero-description">Report civic problems, track their progress, and help build safer, cleaner and more accountable communities.</p>
           <LandingActions />
-          <p className="mt-3 text-xs text-muted-foreground">Explore the reporting and map previews.</p>
+          <p className="mt-3 text-xs text-muted-foreground">Submit verified civic reports and track municipal resolution live.</p>
         </div>
-        <NeighborhoodPreview />
+        <NeighborhoodPreview reports={reports} />
       </div>
     </section>
   );

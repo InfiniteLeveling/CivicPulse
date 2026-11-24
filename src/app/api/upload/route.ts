@@ -1,7 +1,7 @@
 import type { NextRequest } from "next/server";
 import { requireUser } from "@/services/auth.service";
 import { uploadCitizenDraftImage } from "@/services/storage.service";
-import type { UploadPurpose, UploadResponseData } from "@/types/storage";
+import type { UploadPurpose } from "@/types/storage";
 import { errorResponse, successResponse } from "@/utils/api-response";
 import { AppError } from "@/utils/app-error";
 import { logger } from "@/utils/logger";

@@ -70,94 +70,131 @@ export async function classifyCivicImage(
     promptText += `\nCitizen context hint (untrusted context): "${input.description_hint}"`;
   }
 
-  const model = getGeminiModelName();
+  const primaryModel = getGeminiModelName();
+  const candidateModels = customGemini
+    ? [primaryModel]
+    : Array.from(
+        new Set([
+          primaryModel,
+          "gemini-3-flash-preview",
+          "gemini-3.1-flash-lite",
+          "gemini-3.8-flash",
+        ])
+      );
   logger.info("ai.classification_started");
 
   let responseText: string | null = null;
+  let lastProviderError: unknown = null;
 
-  try {
-    // 6. Execute Gemini request with bounded timeout (15 seconds)
-    let timer: NodeJS.Timeout | undefined;
-    const timeoutPromise = new Promise<never>((_, reject) => {
-      timer = setTimeout(() => {
-        reject(new AppError("SERVICE_UNAVAILABLE", "AI analysis request timed out. Please continue manually."));
-      }, 15000);
-      timer.unref?.();
-    });
+  for (let i = 0; i < candidateModels.length; i++) {
+    const model = candidateModels[i];
+    const hasFallback = i < candidateModels.length - 1;
 
     try {
-      const callPromise = ai.models.generateContent({
-        model,
-        contents: [
-          {
-            role: "user",
-            parts: [
-              {
-                inlineData: {
-                  mimeType,
-                  data: base64Data,
-                },
-              },
-              {
-                text: promptText,
-              },
-            ],
-          },
-        ],
-        config: {
-          systemInstruction: CIVIC_CLASSIFICATION_SYSTEM_INSTRUCTION,
-          responseMimeType: "application/json",
-        },
+      // 6. Execute Gemini request with bounded timeout (15 seconds)
+      let timer: NodeJS.Timeout | undefined;
+      const timeoutPromise = new Promise<never>((_, reject) => {
+        timer = setTimeout(() => {
+          reject(new AppError("SERVICE_UNAVAILABLE", "AI analysis request timed out. Please continue manually."));
+        }, 15000);
+        timer.unref?.();
       });
 
-      const response = (await Promise.race([callPromise, timeoutPromise])) as { text?: string | null };
-      responseText = response.text ?? null;
-    } finally {
-      if (timer) clearTimeout(timer);
+      try {
+        const callPromise = ai.models.generateContent({
+          model,
+          contents: [
+            {
+              role: "user",
+              parts: [
+                {
+                  inlineData: {
+                    mimeType,
+                    data: base64Data,
+                  },
+                },
+                {
+                  text: promptText,
+                },
+              ],
+            },
+          ],
+          config: {
+            systemInstruction: CIVIC_CLASSIFICATION_SYSTEM_INSTRUCTION,
+            responseMimeType: "application/json",
+          },
+        });
+
+        const response = (await Promise.race([callPromise, timeoutPromise])) as { text?: string | null };
+        responseText = response.text ?? null;
+        lastProviderError = null;
+        break;
+      } finally {
+        if (timer) clearTimeout(timer);
+      }
+    } catch (err: unknown) {
+      if (err instanceof AppError) {
+        throw err;
+      }
+
+      const errObj = err as { message?: string; status?: number | string; code?: number | string };
+      const errMsg = errObj?.message || "";
+      const errStatus = String(errObj?.status || errObj?.code || "");
+      const isRetryableModelIssue =
+        errStatus === "404" ||
+        errStatus === "503" ||
+        errMsg.includes("NOT_FOUND") ||
+        errMsg.includes("UNAVAILABLE") ||
+        errMsg.includes("Service Unavailable");
+
+      if (hasFallback && isRetryableModelIssue) {
+        lastProviderError = err;
+        continue;
+      }
+
+      logger.error("ai.provider_error", { status: 500 });
+
+      // Check for rate limit / quota exhaustion
+      if (errStatus === "429" || errMsg.includes("RESOURCE_EXHAUSTED") || errMsg.toLowerCase().includes("quota")) {
+        throw new AppError(
+          "RATE_LIMITED",
+          "AI rate limit reached. Please try again shortly or proceed with manual reporting."
+        );
+      }
+
+      // Check for permission denied / credentials error
+      if (
+        errStatus === "403" ||
+        errMsg.includes("PERMISSION_DENIED") ||
+        errMsg.includes("API_KEY_INVALID") ||
+        errMsg.includes("Permission denied")
+      ) {
+        throw new AppError(
+          "SERVICE_UNAVAILABLE",
+          "AI service credentials are restricted or invalid. Please proceed with manual reporting."
+        );
+      }
+
+      // Check for upstream service unavailable
+      if (errStatus === "503" || errMsg.includes("UNAVAILABLE") || errMsg.includes("Service Unavailable")) {
+        throw new AppError(
+          "SERVICE_UNAVAILABLE",
+          "AI provider is temporarily unavailable. Please proceed with manual reporting."
+        );
+      }
+
+      throw new AppError("INTERNAL_SERVER_ERROR", "Failed to generate AI suggestions from evidence image", {
+        cause: err,
+      });
     }
-  } catch (err: unknown) {
-    if (err instanceof AppError) {
-      throw err;
-    }
+  }
 
-    const errObj = err as { message?: string; status?: number | string; code?: number | string };
-    const errMsg = errObj?.message || "";
-    const errStatus = String(errObj?.status || errObj?.code || "");
-
-    logger.error("ai.provider_error", { status: 500 });
-
-    // Check for rate limit / quota exhaustion
-    if (errStatus === "429" || errMsg.includes("RESOURCE_EXHAUSTED") || errMsg.toLowerCase().includes("quota")) {
-      throw new AppError(
-        "RATE_LIMITED",
-        "AI rate limit reached. Please try again shortly or proceed with manual reporting."
-      );
-    }
-
-    // Check for permission denied / credentials error
-    if (
-      errStatus === "403" ||
-      errMsg.includes("PERMISSION_DENIED") ||
-      errMsg.includes("API_KEY_INVALID") ||
-      errMsg.includes("Permission denied")
-    ) {
-      throw new AppError(
-        "SERVICE_UNAVAILABLE",
-        "AI service credentials are restricted or invalid. Please proceed with manual reporting."
-      );
-    }
-
-    // Check for upstream service unavailable
-    if (errStatus === "503" || errMsg.includes("UNAVAILABLE") || errMsg.includes("Service Unavailable")) {
-      throw new AppError(
-        "SERVICE_UNAVAILABLE",
-        "AI provider is temporarily unavailable. Please proceed with manual reporting."
-      );
-    }
-
-    throw new AppError("INTERNAL_SERVER_ERROR", "Failed to generate AI suggestions from evidence image", {
-      cause: err,
-    });
+  if (lastProviderError && !responseText) {
+    logger.error("ai.provider_error", { status: 503 });
+    throw new AppError(
+      "SERVICE_UNAVAILABLE",
+      "AI provider is temporarily unavailable. Please proceed with manual reporting."
+    );
   }
 
   if (!responseText) {
@@ -165,10 +202,17 @@ export async function classifyCivicImage(
     throw new AppError("INTERNAL_SERVER_ERROR", "AI provider returned an empty response");
   }
 
+  // Strip optional Markdown JSON code fences if model includes them
+  const cleanedJsonText = responseText
+    .trim()
+    .replace(/^```json\s*/i, "")
+    .replace(/^```\s*/i, "")
+    .replace(/\s*```$/, "");
+
   // 7. Parse structured JSON safely
   let rawJson: unknown;
   try {
-    rawJson = JSON.parse(responseText);
+    rawJson = JSON.parse(cleanedJsonText);
   } catch (jsonErr) {
     logger.error("ai.json_parse_failed", { status: 502 });
     throw new AppError("INTERNAL_SERVER_ERROR", "AI provider returned malformed JSON", {

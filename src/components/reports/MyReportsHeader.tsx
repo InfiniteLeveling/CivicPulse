@@ -1,14 +1,9 @@
 import Link from "next/link";
-import { PlusCircle, Info } from "lucide-react";
+import { PlusCircle } from "lucide-react";
 import { buttonVariants } from "@/components/ui/button";
-import { Badge } from "@/components/ui/badge";
 import { cn } from "@/lib/utils";
 
-interface MyReportsHeaderProps {
-  isDemoData?: boolean;
-}
-
-export function MyReportsHeader({ isDemoData }: MyReportsHeaderProps) {
+export function MyReportsHeader() {
   return (
     <header className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
       <div className="space-y-1">
@@ -16,16 +11,6 @@ export function MyReportsHeader({ isDemoData }: MyReportsHeaderProps) {
           <h1 className="text-2xl font-bold tracking-tight text-foreground sm:text-3xl">
             My Complaints
           </h1>
-          {isDemoData && (
-            <Badge
-              variant="outline"
-              className="border-primary/30 bg-primary/5 text-primary text-xs font-normal gap-1"
-              title="Live backend REST routes are unprovisioned; showing fixture reports."
-            >
-              <Info className="size-3" aria-hidden="true" />
-              <span>Demo Mode (Live Backend Pending)</span>
-            </Badge>
-          )}
         </div>
         <p className="text-sm text-muted-foreground max-w-2xl">
           Track, filter, and review the resolution status of all your submitted infrastructure reports.

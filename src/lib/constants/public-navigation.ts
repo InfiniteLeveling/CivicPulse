@@ -1,7 +1,6 @@
-// Switch the demo destinations to their product routes as those routes ship.
 export const publicDestinations = {
   home: "/#home",
-  report: "/#report-preview",
+  report: "/report",
   map: "/map",
   signIn: "/login",
   register: "/register",

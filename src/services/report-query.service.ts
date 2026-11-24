@@ -106,12 +106,11 @@ export async function listReports(
 
   const supabase = client ?? (await createSupabaseServerClient());
 
-  // 2. Build Query
+  // 2. Build Query (user_id is never projected to respect anonymous column-level ACLs)
   let query = supabase.from("reports").select(
     `
       id,
       reference,
-      user_id,
       title,
       description,
       category,
@@ -297,32 +296,57 @@ export async function getReportById(
 ): Promise<ReportDetailItem> {
   const supabase = client ?? (await createSupabaseServerClient());
 
-  const { data, error } = await supabase
-    .from("reports")
-    .select(
-      `
-        id,
-        reference,
-        user_id,
-        title,
-        description,
-        category,
-        severity,
-        status,
-        priority_score,
-        latitude,
-        longitude,
-        publication,
-        visibility,
-        resolved_at,
-        created_at,
-        updated_at,
-        departments (id, name, description),
-        report_images (id, storage_path, type, created_at)
-      `
-    )
-    .eq("id", id)
-    .maybeSingle();
+  const { data, error } = caller
+    ? await supabase
+        .from("reports")
+        .select(
+          `
+            id,
+            reference,
+            user_id,
+            title,
+            description,
+            category,
+            severity,
+            status,
+            priority_score,
+            latitude,
+            longitude,
+            publication,
+            visibility,
+            resolved_at,
+            created_at,
+            updated_at,
+            departments (id, name, description),
+            report_images (id, storage_path, type, created_at)
+          `
+        )
+        .eq("id", id)
+        .maybeSingle()
+    : await supabase
+        .from("reports")
+        .select(
+          `
+            id,
+            reference,
+            title,
+            description,
+            category,
+            severity,
+            status,
+            priority_score,
+            latitude,
+            longitude,
+            publication,
+            visibility,
+            created_at,
+            updated_at,
+            departments (id, name, description),
+            report_images (id, storage_path, type, created_at)
+          `
+        )
+        .eq("id", id)
+        .maybeSingle();
 
   if (error) {
     logger.error("request.failed", { status: 500 });

@@ -52,11 +52,28 @@ export async function POST(request: NextRequest) {
     // 4. Delegate to AI service for verified download and multimodal analysis
     const suggestions = await classifyCivicImage(user.id, validationResult.data);
 
-    // 5. Return HTTP 200 with standardized response envelope
-    return successResponse(suggestions, {
-      status: 200,
-      message: "AI suggestions generated successfully",
-    });
+    const analysisId = crypto.randomUUID();
+    const isCivicIssue = !(
+      suggestions.category === "other" &&
+      suggestions.needs_manual_review &&
+      /no civic|not a civic|unrelated|selfie|document|indoor/i.test(
+        `${suggestions.uncertainty_reason ?? ""} ${suggestions.evidence_summary ?? ""}`
+      )
+    );
+
+    // 5. Return HTTP 200 with standardized response envelope including frontend contract fields
+    return successResponse(
+      {
+        ...suggestions,
+        analysisId,
+        description: suggestions.description_suggestion,
+        isCivicIssue,
+      },
+      {
+        status: 200,
+        message: "AI suggestions generated successfully",
+      }
+    );
   } catch (error) {
     return errorResponse(error);
   }

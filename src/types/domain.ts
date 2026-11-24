@@ -133,6 +133,8 @@ export interface LocationSelection {
 
 export interface AIClassifyRequest {
   imageId: string;
+  consent?: boolean;
+  descriptionHint?: string;
 }
 
 export interface AIClassifyResult {

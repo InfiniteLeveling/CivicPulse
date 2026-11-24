@@ -13,7 +13,7 @@ export function AudienceBenefits() {
         <article className="rounded-xl border bg-muted p-6">
           <Building2 aria-hidden="true" className="mb-3 text-muted-foreground" />
           <h3>For authorities</h3>
-          <p className="mt-2 text-muted-foreground">Review complaints in one queue. Check AI suggestions and duplicates, prioritize cases, assign departments and track resolution performance. The prototype uses a simulated authority.</p>
+          <p className="mt-2 text-muted-foreground">Review complaints in one priority queue. Check AI suggestions and duplicates, prioritize cases, assign departments, and track municipal resolution performance.</p>
         </article>
       </div>
     </section>

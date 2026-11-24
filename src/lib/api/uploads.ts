@@ -97,13 +97,6 @@ export async function uploadResolutionImage(
     }
 
     if (err instanceof ApiError) {
-      // In development / demo environment without backend route handlers, gracefully fall back
-      if (err.status === 404) {
-        return {
-          imageId: `res-upload-${Date.now()}`,
-          previewUrl: typeof URL !== "undefined" ? URL.createObjectURL(file) : "",
-        };
-      }
       if (err.status === 413) {
         throw new Error("The resolution file exceeds the server's maximum upload limit (2 MB).");
       }
@@ -116,11 +109,7 @@ export async function uploadResolutionImage(
       throw new Error(err.message || `Resolution image upload failed (HTTP ${err.status}).`);
     }
 
-    // Network error fallback in demo mode
-    return {
-      imageId: `res-upload-${Date.now()}`,
-      previewUrl: typeof URL !== "undefined" ? URL.createObjectURL(file) : "",
-    };
+    throw new Error("Resolution image upload failed. Please check your connection and retry.");
   }
 }
 

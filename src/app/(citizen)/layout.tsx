@@ -9,8 +9,8 @@ import type { CitizenUserSummary } from "@/components/layout/CitizenProfileMenu"
 
 export default async function CitizenLayout({ children }: { children: ReactNode }) {
   let userSummary: CitizenUserSummary = {
-    name: "Jane Citizen",
-    email: "citizen@example.org",
+    name: "Citizen",
+    email: "citizen@civicpulse.org",
     role: "citizen",
   };
 
@@ -26,7 +26,7 @@ export default async function CitizenLayout({ children }: { children: ReactNode 
         auth.user.user_metadata?.full_name ||
         auth.user.email?.split("@")[0] ||
         "Citizen",
-      email: auth.user.email ?? "citizen@example.org",
+      email: auth.user.email ?? "citizen@civicpulse.org",
       role: auth.role === "admin" ? "admin" : "citizen",
     };
   }
@@ -38,7 +38,7 @@ export default async function CitizenLayout({ children }: { children: ReactNode 
 
       {/* Main Content Area */}
       <div className="flex flex-1 flex-col min-w-0 pb-20 md:pb-8">
-        <CitizenTopbar user={userSummary} isDemoData={true} />
+        <CitizenTopbar user={userSummary} isDemoData={false} />
         <main className="flex-1 p-4 sm:p-6 lg:p-8 max-w-7xl mx-auto w-full">
           {children}
         </main>

@@ -6,6 +6,8 @@ import { AppError } from "@/utils/app-error";
 import { logger } from "@/utils/logger";
 import { reportIdParamSchema } from "@/validators/support.schema";
 
+export { POST } from "../upvote/route";
+
 export const dynamic = "force-dynamic";
 
 /**

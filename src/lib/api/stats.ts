@@ -4,10 +4,7 @@ import type { ComplaintSummary, PaginatedListResponse } from "@/types/domain";
 import {
   type AdminStatsResponse,
   validateAdminStats,
-  mockAdminStats,
-  mockEmptyAdminStats,
 } from "@/lib/validation/admin-stats";
-import { mockMyReports } from "./reports-mock";
 
 export interface AdminOverviewData {
   stats: AdminStatsResponse;
@@ -17,7 +14,14 @@ export interface AdminOverviewData {
   lastRefreshedAt: string;
 }
 
-export { mockAdminStats, mockEmptyAdminStats };
+const emptyAdminStats: AdminStatsResponse = {
+  total: 0,
+  pending: 0,
+  inProgress: 0,
+  resolved: 0,
+  criticalActive: 0,
+  resolutionRate: null,
+};
 
 export interface GetAdminStatsOptions {
   empty?: boolean;
@@ -28,83 +32,65 @@ export interface GetAdminStatsOptions {
 /**
  * Fetches authoritative municipal complaint statistics from GET /api/stats?scope=admin.
  * Validates the runtime payload against the canonical schema.
- * Falls back to isolated development fixtures when backend route handlers are unprovisioned.
  */
 export async function getAdminStats(
   options: GetAdminStatsOptions = {}
 ): Promise<{ stats: AdminStatsResponse; isDemoData: boolean }> {
   if (options.forceError) {
-    throw new Error("Simulated admin statistics backend failure (forceError=true).");
+    throw new Error("Unable to load administrative statistics at the moment.");
   }
 
   if (options.empty) {
     return {
-      stats: mockEmptyAdminStats,
-      isDemoData: true,
+      stats: emptyAdminStats,
+      isDemoData: false,
     };
   }
 
-  try {
-    const rawData = await apiRequest<unknown>(endpoints.adminStats, {
-      signal: options.signal,
-    });
-    const validated = validateAdminStats(rawData);
-    return {
-      stats: validated,
-      isDemoData: false,
-    };
-  } catch {
-    // Backend API route handler not yet provisioned; return typed development fixtures
-    return {
-      stats: mockAdminStats,
-      isDemoData: true,
-    };
-  }
+  const rawData = await apiRequest<unknown>(endpoints.adminStats, {
+    signal: options.signal,
+  });
+  const validated = validateAdminStats(rawData);
+  return {
+    stats: validated,
+    isDemoData: false,
+  };
 }
 
 /**
  * Fetches the small recent reports summary subset for the admin overview.
  * Uses GET /api/reports?scope=admin&pageSize=5&sort=recent.
- * Gracefully isolates secondary report list failures from primary stats.
  */
 export async function getAdminRecentReports(
   options: GetAdminStatsOptions = {}
 ): Promise<{ reports: ComplaintSummary[]; isDemoData: boolean }> {
   if (options.forceError) {
-    throw new Error("Simulated recent reports backend failure.");
+    throw new Error("Unable to load recent complaints at the moment.");
   }
 
   if (options.empty) {
     return {
       reports: [],
-      isDemoData: true,
-    };
-  }
-
-  try {
-    const response = await apiRequest<PaginatedListResponse<ComplaintSummary>>(
-      endpoints.listReports,
-      {
-        query: new URLSearchParams({
-          scope: "admin",
-          pageSize: "5",
-          sort: "recent",
-        }),
-        signal: options.signal,
-      }
-    );
-
-    return {
-      reports: response.items ?? [],
       isDemoData: false,
     };
-  } catch {
-    // Return recent reports from mock dataset for visual development
-    return {
-      reports: mockMyReports.slice(0, 5),
-      isDemoData: true,
-    };
   }
+
+  const response = await apiRequest<PaginatedListResponse<ComplaintSummary>>(
+    endpoints.listReports,
+    {
+      query: new URLSearchParams({
+        scope: "admin",
+        pageSize: "5",
+        sort: "recent",
+      }),
+      signal: options.signal,
+    }
+  );
+
+  return {
+    reports: response.items ?? [],
+    isDemoData: false,
+  };
 }
 
 /**
@@ -122,14 +108,14 @@ export async function getAdminOverviewData(
     getAdminStats(options),
     getAdminRecentReports(options).catch(() => ({
       reports: [] as ComplaintSummary[],
-      isDemoData: true,
+      isDemoData: false,
     })),
   ]);
 
   return {
     stats: statsResult.stats,
     recentReports: reportsResult.reports,
-    isDemoData: statsResult.isDemoData || reportsResult.isDemoData,
+    isDemoData: false,
     lastRefreshedAt: new Date().toISOString(),
   };
 }

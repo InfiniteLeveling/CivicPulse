@@ -1,11 +1,13 @@
 import type { Metadata } from "next";
-import { getCitizenDashboardData } from "@/lib/api/dashboard";
+import { getCitizenDashboardServerData } from "@/lib/reports/server-queries";
 import { getVerifiedUser } from "@/lib/auth/authorization";
 import { isSupabaseConfigured } from "@/lib/supabase/server";
 import { DashboardWelcome } from "@/components/dashboard/DashboardWelcome";
 import { DashboardStats } from "@/components/dashboard/DashboardStats";
 import { DashboardQuickActions } from "@/components/dashboard/DashboardQuickActions";
 import { RecentReports } from "@/components/dashboard/RecentReports";
+
+export const dynamic = "force-dynamic";
 
 export const metadata: Metadata = {
   title: "Citizen Dashboard | CivicPulse",
@@ -21,7 +23,7 @@ export default async function CitizenDashboardPage(props: DashboardPageProps) {
   const searchParams = await props.searchParams;
   const isEmptyView = searchParams?.empty === "true";
 
-  let userName = "Jane Citizen";
+  let userName = "Citizen";
   if (isSupabaseConfigured()) {
     const auth = await getVerifiedUser();
     if (auth?.profile?.fullName) {
@@ -33,14 +35,19 @@ export default async function CitizenDashboardPage(props: DashboardPageProps) {
     }
   }
 
-  const { stats, reports, isDemoData } = await getCitizenDashboardData(isEmptyView);
+  const { stats, reports } = isEmptyView
+    ? {
+        stats: { total: 0, pending: 0, inProgress: 0, resolved: 0, resolutionRate: null },
+        reports: [],
+      }
+    : await getCitizenDashboardServerData();
 
   return (
     <div className="space-y-8 animate-in fade-in-50 duration-200">
       {/* Welcome Hero Banner */}
       <DashboardWelcome
         userName={userName}
-        isDemoData={isDemoData}
+        isDemoData={false}
         isEmptyView={isEmptyView}
       />
 

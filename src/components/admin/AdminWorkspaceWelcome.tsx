@@ -63,70 +63,67 @@ export function AdminWorkspaceWelcome({ user }: AdminWorkspaceWelcomeProps) {
         <div>
           <h2 className="text-sm font-semibold text-foreground flex items-center gap-2">
             <Layers className="size-4 text-primary" aria-hidden="true" />
-            <span>Administrative Portal Roadmap</span>
+            <span>Administrative Portal Capabilities</span>
           </h2>
           <p className="text-xs text-muted-foreground">
-            The foundation shell is active. Administrative management modules will activate according to the roadmap.
+            Manage municipal complaint queues, triage workflows, and city-wide performance analytics.
           </p>
         </div>
 
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-          {/* Card 1: Shell Foundation (Phase 16 - Active) */}
           <Card className="border-border shadow-xs border-l-4 border-l-emerald-500">
             <CardHeader className="pb-2">
               <div className="flex items-center justify-between">
                 <Badge variant="outline" className="text-[10px] bg-emerald-500/10 text-emerald-700 dark:text-emerald-300 border-emerald-500/30">
-                  Phase 16 · Active
+                  Security · Active
                 </Badge>
                 <CheckCircle2 className="size-4 text-emerald-600" aria-hidden="true" />
               </div>
               <CardTitle className="text-sm font-semibold text-foreground pt-1">
-                Admin Portal Shell & Access Guard
+                Role-Verified Operations Shell
               </CardTitle>
             </CardHeader>
             <CardContent>
               <p className="text-xs text-muted-foreground leading-relaxed">
-                Secure server-side role verification, Deep Navy desktop sidebar, responsive mobile navigation drawer, and topbar identity menu.
+                Server-side authority verification, municipal navigation bar, and account controls.
               </p>
             </CardContent>
           </Card>
 
-          {/* Card 2: Overview Dashboard (Phase 17 - Next) */}
           <Card className="border-border shadow-xs border-l-4 border-l-primary">
             <CardHeader className="pb-2">
               <div className="flex items-center justify-between">
                 <Badge variant="outline" className="text-[10px] bg-primary/10 text-primary border-primary/30">
-                  Phase 17 · Scheduled Next
+                  Overview · Active
                 </Badge>
                 <Clock className="size-4 text-primary" aria-hidden="true" />
               </div>
               <CardTitle className="text-sm font-semibold text-foreground pt-1">
-                Admin Overview & Operations
+                Live Operational Metrics
               </CardTitle>
             </CardHeader>
             <CardContent>
               <p className="text-xs text-muted-foreground leading-relaxed">
-                Authoritative operational metrics, municipal caseload breakdown, SLA tracking, and departmental queue distribution.
+                Authoritative operational metrics, caseload breakdown, SLA tracking, and department workload distribution.
               </p>
             </CardContent>
           </Card>
 
-          {/* Card 3: Complaint Priority Queue (Phase 18) */}
           <Card className="border-border shadow-xs border-l-4 border-l-amber-500">
             <CardHeader className="pb-2">
               <div className="flex items-center justify-between">
                 <Badge variant="outline" className="text-[10px] bg-amber-500/10 text-amber-700 dark:text-amber-300 border-amber-500/30">
-                  Phase 18 · Coming Soon
+                  Triage · Active
                 </Badge>
                 <ClipboardList className="size-4 text-amber-600" aria-hidden="true" />
               </div>
               <CardTitle className="text-sm font-semibold text-foreground pt-1">
-                Complaints Queue & Prioritization
+                Priority Queue &amp; Triage
               </CardTitle>
             </CardHeader>
             <CardContent>
               <p className="text-xs text-muted-foreground leading-relaxed">
-                Multi-attribute triage queue, dynamic sorting by weighted priority score, severity filtering, and department re-routing.
+                Multi-attribute triage queue, weighted priority scoring, severity verification, and department routing.
               </p>
             </CardContent>
           </Card>

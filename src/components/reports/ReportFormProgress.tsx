@@ -39,7 +39,7 @@ export function ReportFormProgress({
     if (photoStatus === "uploading") {
       return { label: "Uploading", variant: "secondary" };
     }
-    return { label: "Phases 8 & 9", variant: "outline" };
+    return { label: "Photo & AI", variant: "outline" };
   }
 
   function getLocationBadge(): { label: string; variant: "default" | "secondary" | "outline" } {
@@ -49,7 +49,7 @@ export function ReportFormProgress({
     if (locationStatus === "selected") {
       return { label: "Selected", variant: "secondary" };
     }
-    return { label: "Phase 10", variant: "outline" };
+    return { label: "Map Pin", variant: "outline" };
   }
 
   const photoBadge = getPhotoBadge();

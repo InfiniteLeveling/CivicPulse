@@ -1,9 +1,8 @@
 "use client";
 
 import Link from "next/link";
-import { PlusCircle, Sparkles } from "lucide-react";
+import { PlusCircle } from "lucide-react";
 import { buttonVariants } from "@/components/ui/button";
-import { Badge } from "@/components/ui/badge";
 import { CitizenProfileMenu, type CitizenUserSummary } from "./CitizenProfileMenu";
 import { BrandLogo } from "@/components/common/BrandLogo";
 import { cn } from "@/lib/utils";
@@ -13,7 +12,7 @@ interface CitizenTopbarProps {
   isDemoData?: boolean;
 }
 
-export function CitizenTopbar({ user, isDemoData }: CitizenTopbarProps) {
+export function CitizenTopbar({ user }: CitizenTopbarProps) {
   return (
     <header className="sticky top-0 z-30 h-16 border-b border-border bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/80 px-4 sm:px-6">
       <div className="h-full flex items-center justify-between gap-4">
@@ -34,18 +33,8 @@ export function CitizenTopbar({ user, isDemoData }: CitizenTopbarProps) {
           </div>
         </div>
 
-        {/* Right side: Demo badge, quick action, profile menu */}
+        {/* Right side: quick action, profile menu */}
         <div className="flex items-center gap-2 sm:gap-3">
-          {isDemoData && (
-            <Badge
-              variant="outline"
-              className="hidden lg:inline-flex items-center gap-1 border-amber-500/30 bg-amber-500/10 text-amber-700 dark:text-amber-300 text-xs px-2.5 py-0.5"
-            >
-              <Sparkles className="size-3" aria-hidden="true" />
-              <span>Preview Mode</span>
-            </Badge>
-          )}
-
           <Link
             href="/report"
             className={cn(buttonVariants({ variant: "default", size: "sm" }), "gap-1.5 font-medium shadow-sm")}

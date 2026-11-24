@@ -215,11 +215,10 @@ export function AdminComplaintPreviewDialog({
           <span>Last Updated: {formatReportDateTime(report.updatedAt)}</span>
         </div>
 
-        {/* Phase 19 Notice */}
         <div className="rounded-lg border border-primary/20 bg-primary/5 p-3 flex items-center gap-2.5 text-xs text-foreground">
           <Info className="size-4 text-primary shrink-0" aria-hidden="true" />
           <span>
-            Direct administrative triage, department reassignment, and status mutation workflows activate in <strong>Phase 19</strong>.
+            Open the full triage workspace to assign departments, update status, and attach resolution proof.
           </span>
         </div>
 

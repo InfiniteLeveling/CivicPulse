@@ -1,5 +1,5 @@
 import type { Metadata } from "next";
-import { getAdminAnalytics } from "@/lib/api/analytics";
+import { getAdminAnalyticsServerData } from "@/lib/reports/server-queries";
 import { AdminAnalyticsDashboard } from "@/components/admin/analytics/AdminAnalyticsDashboard";
 
 export const metadata: Metadata = {
@@ -14,17 +14,13 @@ export default async function AdminAnalyticsPage({
   searchParams,
 }: {
   searchParams?: Promise<{
-    empty?: string;
-    forceError?: string;
     timeRange?: "all" | "30d" | "7d";
     category?: string;
     status?: string;
   }>;
 }) {
   const resolved = searchParams ? await searchParams : undefined;
-  const data = await getAdminAnalytics({
-    empty: resolved?.empty === "true",
-    forceError: resolved?.forceError === "true",
+  const data = await getAdminAnalyticsServerData({
     timeRange: resolved?.timeRange,
     category: resolved?.category,
     status: resolved?.status,

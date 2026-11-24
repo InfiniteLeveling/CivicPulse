@@ -21,8 +21,8 @@ interface CitizenProfileMenuProps {
 
 export function CitizenProfileMenu({
   user = {
-    name: "Jane Citizen",
-    email: "citizen@example.org",
+    name: "Citizen",
+    email: "citizen@civicpulse.org",
     role: "citizen",
   },
   className,
@@ -30,8 +30,8 @@ export function CitizenProfileMenu({
   const [open, setOpen] = useState(false);
   const containerRef = useRef<HTMLDivElement>(null);
 
-  const displayName = user?.name || "Jane Citizen";
-  const displayEmail = user?.email || "citizen@example.org";
+  const displayName = user?.name || "Citizen";
+  const displayEmail = user?.email || "citizen@civicpulse.org";
   const initial = displayName.charAt(0).toUpperCase() || "C";
   const roleLabel = user?.role ? ROLE_LABELS[user.role] : "Citizen";
 

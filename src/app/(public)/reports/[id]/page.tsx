@@ -2,12 +2,14 @@ import { notFound } from "next/navigation";
 import type { Metadata } from "next";
 import Link from "next/link";
 import { ShieldAlert, ArrowLeft } from "lucide-react";
-import { getReport } from "@/lib/api/reports";
-import { ApiError } from "@/lib/api/client";
+import { getReportDetailsServerData } from "@/lib/reports/server-queries";
+import { AppError } from "@/utils/app-error";
 import { ReportDetailsView } from "@/components/reports/ReportDetailsView";
 import { buttonVariants } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 import { cn } from "@/lib/utils";
+
+export const dynamic = "force-dynamic";
 
 interface PageProps {
   params: Promise<{ id: string }>;
@@ -17,7 +19,7 @@ export async function generateMetadata({ params }: PageProps): Promise<Metadata>
   const { id } = await params;
 
   try {
-    const details = await getReport(id);
+    const details = await getReportDetailsServerData(id);
     return {
       title: `${details.report.title} (${details.report.reference}) | CivicPulse`,
       description: details.report.description.slice(0, 160),
@@ -37,13 +39,13 @@ export default async function ReportDetailsPage({ params }: PageProps) {
   let isForbidden = false;
 
   try {
-    details = await getReport(id);
+    details = await getReportDetailsServerData(id);
   } catch (err: unknown) {
-    if (err instanceof ApiError && err.status === 404) {
+    if (err instanceof AppError && (err.status === 404 || err.status === 422)) {
       notFound();
     }
 
-    if (err instanceof ApiError && err.status === 403) {
+    if (err instanceof AppError && err.status === 403) {
       isForbidden = true;
     } else {
       throw err;

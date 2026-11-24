@@ -1,6 +1,8 @@
 import type { Metadata } from "next";
-import { getPublicReports } from "@/lib/api/reports";
+import { getPublicReportsServerData } from "@/lib/reports/server-queries";
 import { CivicMap } from "@/components/maps/CivicMap";
+
+export const dynamic = "force-dynamic";
 
 export const metadata: Metadata = {
   title: "Civic Issue Map | CivicPulse",
@@ -9,14 +11,14 @@ export const metadata: Metadata = {
 };
 
 export default async function PublicMapPage() {
-  const result = await getPublicReports();
+  const result = await getPublicReportsServerData();
 
   return (
     <div className="w-full">
       <CivicMap
         initialReports={result.items}
         initialTotal={result.total}
-        isDemoData={result.isDemoData}
+        isDemoData={false}
       />
     </div>
   );

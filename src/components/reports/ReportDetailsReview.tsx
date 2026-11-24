@@ -285,7 +285,7 @@ export function ReportDetailsReview({
               ) : (
                 <div className="rounded-xl border border-dashed border-border/80 bg-muted/20 p-4 text-xs text-muted-foreground flex items-center gap-2.5">
                   <MapPin className="size-4 shrink-0 text-muted-foreground" aria-hidden="true" />
-                  <span>No location confirmed yet. (Required for municipal dispatch in Phase 12).</span>
+                  <span>No location confirmed yet. Confirm a map pin before submitting.</span>
                 </div>
               )}
             </div>
@@ -382,19 +382,19 @@ export function ReportDetailsReview({
         </CardContent>
       </Card>
 
-      {/* Upcoming Stages Explanation Box */}
+      {/* Submission Overview */}
       <div className="rounded-xl border border-dashed border-border bg-card/40 p-5 space-y-4">
         <h3 className="text-sm font-semibold text-foreground">
-          What happens next? (Upcoming Roadmap)
+          What happens next?
         </h3>
 
         <div className="grid grid-cols-1 md:grid-cols-2 gap-3 text-xs">
           <div className="flex items-start gap-2.5 p-3 rounded-lg border bg-background">
             <CopyCheck className="size-4 text-primary mt-0.5 shrink-0" aria-hidden="true" />
             <div>
-              <p className="font-semibold text-foreground">Step 3: Duplicate Verification (Phase 11 Active)</p>
+              <p className="font-semibold text-foreground">Step 3: Duplicate Verification</p>
               <p className="text-muted-foreground mt-0.5">
-                Nearby complaints within 100 meters scanned to prevent duplicate city tickets.
+                Nearby complaints within 100 meters are scanned to prevent duplicate tickets.
               </p>
             </div>
           </div>
@@ -402,18 +402,12 @@ export function ReportDetailsReview({
           <div className="flex items-start gap-2.5 p-3 rounded-lg border bg-background">
             <Send className="size-4 text-muted-foreground mt-0.5 shrink-0" aria-hidden="true" />
             <div>
-              <p className="font-semibold text-foreground">Step 4: Municipal Dispatch (Phase 12 Next)</p>
+              <p className="font-semibold text-foreground">Step 4: Municipal Dispatch</p>
               <p className="text-muted-foreground mt-0.5">
-                Official complaint persistence and department assignment via <code className="font-mono text-[10px]">POST /api/reports</code>.
+                Your complaint is routed automatically to the relevant municipal department.
               </p>
             </div>
           </div>
-        </div>
-
-        <div className="pt-2 flex flex-col sm:flex-row items-center justify-between gap-3 text-xs text-muted-foreground border-t border-border/60">
-          <span>
-            Final report creation API (<code className="text-[11px] font-mono">POST /api/reports</code>) will be activated in Phase 12 once photo and location are bound.
-          </span>
         </div>
       </div>
 
@@ -431,18 +425,6 @@ export function ReportDetailsReview({
         </Button>
 
         <div className="flex items-center gap-2 w-full sm:w-auto">
-          <Button
-            type="button"
-            variant="default"
-            size="default"
-            disabled
-            className="w-full sm:w-auto gap-2 opacity-60 cursor-not-allowed"
-            aria-disabled="true"
-          >
-            <Send className="size-4" aria-hidden="true" />
-            <span>Submit Report (Scheduled for Phase 12)</span>
-          </Button>
-
           <Link
             href="/dashboard"
             className={cn(buttonVariants({ variant: "ghost", size: "default" }), "w-full sm:w-auto gap-2 text-xs text-muted-foreground")}

@@ -66,7 +66,7 @@ export function ImageUploadStatus({
             Uploading Photograph...
           </p>
           <p className="text-muted-foreground">
-            Sending image to secure storage (<code className="font-mono text-[11px]">POST /api/uploads</code>).
+            Uploading your image securely for attachment and review.
           </p>
         </div>
       </div>

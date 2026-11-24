@@ -1,7 +1,6 @@
 import { apiRequest } from "@/lib/api/client";
 import { endpoints } from "@/lib/api/endpoints";
 import type { ComplaintStats, ComplaintSummary, PaginatedListResponse } from "@/types/domain";
-import { mockCitizenReports, mockCitizenStats, mockEmptyStats } from "./dashboard-mock";
 
 export interface CitizenDashboardData {
   stats: ComplaintStats;
@@ -10,45 +9,36 @@ export interface CitizenDashboardData {
   error?: string;
 }
 
+const emptyStats: ComplaintStats = {
+  total: 0,
+  pending: 0,
+  inProgress: 0,
+  resolved: 0,
+  resolutionRate: null,
+};
+
 /**
- * Fetches citizen dashboard statistics and recent reports.
- * Falls back gracefully to typed development fixtures if backend routes are not yet available.
+ * Fetches citizen dashboard statistics and recent reports from live endpoints.
  */
 export async function getCitizenDashboardData(empty = false): Promise<CitizenDashboardData> {
   if (empty) {
     return {
-      stats: mockEmptyStats,
+      stats: emptyStats,
       reports: [],
-      isDemoData: true,
-    };
-  }
-
-  try {
-    // Attempt live backend fetch via existing API client
-    const statsPromise = apiRequest<ComplaintStats>(endpoints.myStats);
-    const reportsPromise = apiRequest<PaginatedListResponse<ComplaintSummary>>(
-      endpoints.listReports,
-      {
-        query: new URLSearchParams({ scope: "mine", pageSize: "5" }),
-      }
-    );
-
-    const [statsResult, reportsResult] = await Promise.all([
-      statsPromise,
-      reportsPromise,
-    ]);
-
-    return {
-      stats: statsResult,
-      reports: reportsResult.items ?? [],
       isDemoData: false,
     };
-  } catch {
-    // Backend API is not yet provisioned; fall back to development fixtures
-    return {
-      stats: mockCitizenStats,
-      reports: mockCitizenReports,
-      isDemoData: true,
-    };
   }
+
+  const [statsResult, reportsResult] = await Promise.all([
+    apiRequest<ComplaintStats>(endpoints.myStats),
+    apiRequest<PaginatedListResponse<ComplaintSummary>>(endpoints.listReports, {
+      query: new URLSearchParams({ scope: "mine", pageSize: "5" }),
+    }),
+  ]);
+
+  return {
+    stats: statsResult,
+    reports: reportsResult.items ?? [],
+    isDemoData: false,
+  };
 }

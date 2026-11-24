@@ -274,7 +274,7 @@ export function LocationPicker({
           )}
 
           <p className="text-[11px] text-muted-foreground leading-relaxed">
-            This geographical point will be used to dispatch municipal repair crews and detect potential duplicates (Phase 11).
+            This geographical point will be used to dispatch municipal repair crews and check for nearby duplicates.
           </p>
         </div>
       ) : (

@@ -16,10 +16,16 @@ export const dynamic = "force-dynamic";
 export async function GET() {
   try {
     const data = await listDepartments();
-    return successResponse(data, {
-      status: 200,
-      message: "Departments retrieved successfully",
-    });
+    return successResponse(
+      {
+        ...data,
+        items: data.departments,
+      },
+      {
+        status: 200,
+        message: "Departments retrieved successfully",
+      }
+    );
   } catch (error) {
     return errorResponse(error);
   }

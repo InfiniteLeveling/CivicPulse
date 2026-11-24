@@ -52,21 +52,35 @@ export async function updateSession(request: NextRequest) {
   const isProtectedPage =
     pathname.startsWith("/dashboard") ||
     pathname.startsWith("/admin") ||
-    pathname.startsWith("/report") ||
+    pathname === "/report" ||
+    pathname.startsWith("/report/") ||
     pathname.startsWith("/my-reports");
 
   // Redirect unauthenticated users away from protected pages
   if (!user && isProtectedPage) {
     const redirectUrl = request.nextUrl.clone();
     redirectUrl.pathname = "/login";
-    redirectUrl.searchParams.set("redirectTo", pathname);
+    redirectUrl.searchParams.set("next", pathname);
     return NextResponse.redirect(redirectUrl);
   }
 
-  // Redirect authenticated users away from auth pages
+  // Redirect authenticated users away from auth pages based on role
   if (user && isAuthPage) {
+    let targetPath = "/dashboard";
+    try {
+      const { data: profile } = await supabase
+        .from("profiles")
+        .select("role")
+        .eq("id", user.id)
+        .maybeSingle();
+      if (profile?.role === "admin") {
+        targetPath = "/admin";
+      }
+    } catch {
+      // Fallback to /dashboard
+    }
     const redirectUrl = request.nextUrl.clone();
-    redirectUrl.pathname = "/dashboard";
+    redirectUrl.pathname = targetPath;
     redirectUrl.search = "";
     return NextResponse.redirect(redirectUrl);
   }

@@ -2,12 +2,23 @@ import { type NextRequest } from "next/server";
 import { requireAdmin } from "@/services/auth.service";
 import { assignDepartment } from "@/services/department.service";
 import { getReportById } from "@/services/report-query.service";
+import { enrichReportItems } from "@/lib/reports/server-queries";
+import type { RawMappableReport } from "@/lib/reports/mapper";
 import { createSupabaseServerClient } from "@/lib/supabase/server";
 import { successResponse, errorResponse } from "@/utils/api-response";
 import { AppError } from "@/utils/app-error";
 import { logger } from "@/utils/logger";
 
 export const dynamic = "force-dynamic";
+
+interface TriageBody {
+  departmentId?: string | null;
+  category?: string;
+  severity?: string;
+  visibility?: string;
+  remark?: string;
+  version?: number;
+}
 
 export async function PATCH(
   request: NextRequest,
@@ -17,9 +28,9 @@ export async function PATCH(
     const admin = await requireAdmin();
     const { id } = await params;
 
-    let body: any;
+    let body: TriageBody;
     try {
-      body = await request.json();
+      body = (await request.json()) as TriageBody;
     } catch {
       throw new AppError("VALIDATION_ERROR", "Malformed JSON body");
     }
@@ -40,18 +51,20 @@ export async function PATCH(
           admin,
           supabase
         );
-      } catch (err: any) {
+      } catch {
         logger.warn("request.failed", { status: 500 });
       }
     }
 
-    // 2. Update category, severity, visibility if specified
-    const updates: Record<string, any> = {
+    // 2. Update category, severity, publication if specified
+    const updates: Record<string, string> = {
       updated_at: new Date().toISOString(),
     };
     if (category) updates.category = category;
     if (severity) updates.severity = severity;
-    if (visibility) updates.visibility = visibility;
+    if (visibility === "public" || visibility === "private") {
+      updates.publication = visibility;
+    }
 
     const { error: updateError } = await supabase
       .from("reports")
@@ -62,12 +75,17 @@ export async function PATCH(
       logger.warn("request.failed", { status: 500 });
     }
 
-    // 3. Fetch latest report detail
-    const updated = await getReportById(id, admin);
+    // 3. Fetch latest report detail and normalize to ComplaintSummary
+    const updated = await getReportById(id, admin, supabase);
+    const [mappedReport] = await enrichReportItems(
+      [updated as unknown as RawMappableReport],
+      admin.id,
+      supabase
+    );
     const newVersion = (typeof version === "number" ? version : 1) + 1;
 
     return successResponse({
-      report: updated,
+      report: mappedReport,
       version: newVersion,
     });
   } catch (err) {

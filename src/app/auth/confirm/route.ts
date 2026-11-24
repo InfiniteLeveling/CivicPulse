@@ -16,9 +16,17 @@ export async function GET(request: NextRequest) {
   const type = searchParams.get("type") as EmailOtpType | null;
   const code = searchParams.get("code");
   const next = searchParams.get("next");
+  const oauthError = searchParams.get("error");
+  const oauthErrorDescription = searchParams.get("error_description");
 
-  const defaultRedirect = type === "recovery" ? "/reset-password" : "/dashboard";
-  const redirectPath = sanitizeRedirectUrl(next, defaultRedirect);
+  if (oauthError) {
+    const loginUrl = new URL("/login", request.url);
+    loginUrl.searchParams.set("error", "oauth_failed");
+    if (oauthErrorDescription) {
+      loginUrl.searchParams.set("error_description", oauthErrorDescription);
+    }
+    return NextResponse.redirect(loginUrl);
+  }
 
   if (!isSupabaseConfigured()) {
     return NextResponse.redirect(
@@ -29,6 +37,7 @@ export async function GET(request: NextRequest) {
   try {
     const responseHeaders = new Headers();
     const supabase = await createSupabaseServerClient(responseHeaders);
+    let authenticated = false;
 
     // 1. Verify OTP using token_hash (standard email confirmation / recovery)
     if (token_hash && type) {
@@ -38,27 +47,52 @@ export async function GET(request: NextRequest) {
       });
 
       if (!error) {
-        const redirectUrl = new URL(redirectPath, request.url);
-        const res = NextResponse.redirect(redirectUrl);
-        responseHeaders.forEach((val, key) => res.headers.append(key, val));
-        return res;
+        authenticated = true;
+      } else {
+        logger.warn("auth.callback_failed");
       }
-
-      logger.warn("auth.callback_failed");
     }
 
-    // 2. PKCE code exchange if code parameter is present
-    if (code) {
+    // 2. PKCE code exchange for OAuth logins and magic links
+    if (!authenticated && code) {
       const { error } = await supabase.auth.exchangeCodeForSession(code);
 
       if (!error) {
-        const redirectUrl = new URL(redirectPath, request.url);
-        const res = NextResponse.redirect(redirectUrl);
-        responseHeaders.forEach((val, key) => res.headers.append(key, val));
-        return res;
+        authenticated = true;
+      } else {
+        logger.warn("auth.callback_failed");
+      }
+    }
+
+    if (authenticated) {
+      // Ensure a profile row exists (handles first-time OAuth users gracefully)
+      let defaultRedirect = type === "recovery" ? "/reset-password" : "/dashboard";
+      if (type !== "recovery") {
+        try {
+          await supabase.rpc("civicpulse_ensure_profile");
+        } catch {
+          // Non-fatal if RPC is unavailable or trigger already provisioned the profile
+        }
+
+        const { data: userData } = await supabase.auth.getUser();
+        if (userData?.user) {
+          const { data: profile } = await supabase
+            .from("profiles")
+            .select("role")
+            .eq("id", userData.user.id)
+            .maybeSingle();
+
+          if (profile?.role === "admin") {
+            defaultRedirect = "/admin";
+          }
+        }
       }
 
-      logger.warn("auth.callback_failed");
+      const redirectPath = sanitizeRedirectUrl(next, defaultRedirect);
+      const redirectUrl = new URL(redirectPath, request.url);
+      const res = NextResponse.redirect(redirectUrl);
+      responseHeaders.forEach((val, key) => res.headers.append(key, val));
+      return res;
     }
   } catch {
     // If verification throws, redirect to login with verification_failed

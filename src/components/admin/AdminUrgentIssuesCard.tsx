@@ -1,3 +1,4 @@
+import Link from "next/link";
 import { AlertOctagon } from "lucide-react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
@@ -47,7 +48,10 @@ export function AdminUrgentIssuesCard({ urgentCount }: AdminUrgentIssuesCardProp
         </div>
         <p className="text-xs text-muted-foreground leading-relaxed">
           Complaints classified as critical severity or weighted priority score ≥ 70.
-          Full priority triage queue activates in Phase 18.
+          Filter urgent cases directly in the{" "}
+          <Link href="/admin/complaints?urgent=true" className="text-primary font-medium hover:underline">
+            priority triage queue
+          </Link>.
         </p>
       </CardContent>
     </Card>
